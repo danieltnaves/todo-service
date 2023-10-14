@@ -32,18 +32,18 @@ public class TodoService {
             throw new UpdatePastDueTodoItemException(String.format(PAST_DUE_TODO_ITEM_MESSAGE, id));
         }
 
-        if (isUpdateOperationAllowed(todoDTO, todo)) {
+        if (isDoneUpdateOperationAllowed(todoDTO, todo)) {
             throw new UpdateDoneTodoItemException(String.format(TODO_ITEM_MARKED_AS_DONE_MESSAGE, id));
         }
 
         todo.setStatus(!ObjectUtils.isEmpty(todoDTO.status()) ? Todo.Status.fromString(todoDTO.status().name()) : todo.getStatus());
         todo.setDescription(!ObjectUtils.isEmpty(todoDTO.description()) ? todoDTO.description() : todo.getDescription());
-        todo.setDoneAt(Status.DONE.equals(todoDTO.status()) ? LocalDateTime.now() : todo.getDoneAt());
+        todo.setDoneAt(Status.DONE.equals(todoDTO.status()) ? LocalDateTime.now() : null);
 
         return TodoDTO.fromTodoToTodoDTO(todoRepository.save(todo));
     }
 
-    private static boolean isUpdateOperationAllowed(TodoDTO todoDTO, Todo todo) {
+    private static boolean isDoneUpdateOperationAllowed(TodoDTO todoDTO, Todo todo) {
         return Todo.Status.DONE.equals(todo.getStatus()) && !Status.NOT_DONE.equals(todoDTO.status());
     }
 

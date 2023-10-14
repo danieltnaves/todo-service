@@ -149,6 +149,34 @@ class TodoServiceTest {
         assertThat(doneTodo.getStatus(), is(Todo.Status.DONE));
         assertThat(doneTodo.getDoneAt(), is(greaterThan(currentDate)));
     }
+
+    @Test
+    void testMarkTodoDoneItemAsNotDone() {
+        LocalDateTime currentDate = LocalDateTime.now();
+        Todo todo = Todo.builder()
+                .id(1L)
+                .description("Go to grocery store")
+                .status(Todo.Status.DONE)
+                .createdAt(currentDate)
+                .build();
+        when(todoRepository.findById(1L)).thenReturn(Optional.of(todo));
+
+        Todo savedTodo = Todo.builder()
+                .id(1L)
+                .description("Go to grocery store")
+                .status(Todo.Status.NOT_DONE)
+                .createdAt(currentDate)
+                .build();
+        when(todoRepository.save(any(Todo.class))).thenReturn(savedTodo);
+
+        TodoDTO todoDTO = TodoDTO.builder()
+                .status(TodoDTO.Status.NOT_DONE)
+                .build();
+        Todo doneTodo = TodoDTO.fromTodoDTOToTodo(todoService.updateTodo(1L, todoDTO));
+
+        assertThat(doneTodo.getStatus(), is(Todo.Status.NOT_DONE));
+        assertThat(doneTodo.getDoneAt(), nullValue());
+    }
 }
 
 
