@@ -1,13 +1,13 @@
 package com.danieltnaves.todo.todo;
 
-import com.danieltnaves.todo.todo.domain.UpdateItemRequest;
-import com.danieltnaves.todo.todo.domain.UpdateItemResponse;
+import com.danieltnaves.todo.todo.api.UpdateTodoRequest;
+import com.danieltnaves.todo.todo.api.UpdateTodoResponse;
 
 public interface ChangeStatusVisitor {
 
-    UpdateItemResponse visit(UpdateItemRequest.UpdateStatusToDoneRequest updateStatusToDoneRequest);
+    UpdateTodoResponse visit(UpdateTodoRequest.UpdateStatusToDoneRequest updateStatusToDoneRequest);
 
-    UpdateItemResponse visit(UpdateItemRequest.UpdateStatusToNotDoneRequest updateStatusToNotDoneRequest);
+    UpdateTodoResponse visit(UpdateTodoRequest.UpdateStatusToNotDoneRequest updateStatusToNotDoneRequest);
 
-    UpdateItemResponse visit(UpdateItemRequest.UpdateDescription updateDescription);
+    UpdateTodoResponse visit(UpdateTodoRequest.UpdateDescription updateDescription);
 }

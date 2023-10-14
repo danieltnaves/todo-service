@@ -1,4 +1,4 @@
-package com.danieltnaves.todo.todo.domain;
+package com.danieltnaves.todo.todo.api;
 
 import com.danieltnaves.todo.todo.ChangeStatusVisitor;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -11,16 +11,16 @@ import lombok.NoArgsConstructor;
 @Getter
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "action", visible = true)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = UpdateItemRequest.UpdateStatusToDoneRequest.class, name = "UPDATE_STATUS_TO_DONE"),
-        @JsonSubTypes.Type(value = UpdateItemRequest.UpdateStatusToNotDoneRequest.class, name = "UPDATE_STATUS_TO_NOT_DONE"),
-        @JsonSubTypes.Type(value = UpdateItemRequest.UpdateDescription.class, name = "UPDATE_ITEM_DESCRIPTION"),
+        @JsonSubTypes.Type(value = UpdateTodoRequest.UpdateStatusToDoneRequest.class, name = "UPDATE_STATUS_TO_DONE"),
+        @JsonSubTypes.Type(value = UpdateTodoRequest.UpdateStatusToNotDoneRequest.class, name = "UPDATE_STATUS_TO_NOT_DONE"),
+        @JsonSubTypes.Type(value = UpdateTodoRequest.UpdateDescription.class, name = "UPDATE_ITEM_DESCRIPTION"),
 })
 @NoArgsConstructor
-public abstract class UpdateItemRequest {
+public abstract class UpdateTodoRequest {
 
     @EqualsAndHashCode(callSuper = true)
     @Getter
-    public static class UpdateStatusToDoneRequest extends UpdateItemRequest {
+    public static class UpdateStatusToDoneRequest extends UpdateTodoRequest {
 
         private Status status;
 
@@ -29,14 +29,14 @@ public abstract class UpdateItemRequest {
         }
 
         @Override
-        public UpdateItemResponse accept(ChangeStatusVisitor changeStatusVisitor) {
+        public UpdateTodoResponse accept(ChangeStatusVisitor changeStatusVisitor) {
             return changeStatusVisitor.visit(this);
         }
     }
 
     @EqualsAndHashCode(callSuper = true)
     @Getter
-    public static class UpdateStatusToNotDoneRequest extends UpdateItemRequest {
+    public static class UpdateStatusToNotDoneRequest extends UpdateTodoRequest {
 
         private Status status;
 
@@ -45,23 +45,23 @@ public abstract class UpdateItemRequest {
         }
 
         @Override
-        public UpdateItemResponse accept(ChangeStatusVisitor changeStatusVisitor) {
+        public UpdateTodoResponse accept(ChangeStatusVisitor changeStatusVisitor) {
             return changeStatusVisitor.visit(this);
         }
     }
 
     @EqualsAndHashCode(callSuper = true)
     @Getter
-    public static class UpdateDescription extends UpdateItemRequest {
+    public static class UpdateDescription extends UpdateTodoRequest {
 
         @NotEmpty
         private String description;
 
         @Override
-        public UpdateItemResponse accept(ChangeStatusVisitor changeStatusVisitor) {
+        public UpdateTodoResponse accept(ChangeStatusVisitor changeStatusVisitor) {
             return changeStatusVisitor.visit(this);
         }
     }
 
-    public abstract UpdateItemResponse accept(ChangeStatusVisitor changeStatusVisitor);
+    public abstract UpdateTodoResponse accept(ChangeStatusVisitor changeStatusVisitor);
 }

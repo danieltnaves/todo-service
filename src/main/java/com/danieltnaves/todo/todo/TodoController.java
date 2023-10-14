@@ -1,13 +1,12 @@
 package com.danieltnaves.todo.todo;
 
-import com.danieltnaves.todo.todo.domain.*;
+import com.danieltnaves.todo.todo.api.*;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.time.ZonedDateTime;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -22,25 +21,25 @@ public class TodoController {
 
     @PostMapping(path = "todo", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(CREATED)
-    public ResponseEntity<AddItemResponse> addItem(@RequestBody AddItemRequest addItemRequest) {
-        return ResponseEntity.created(URI.create("/todo/1")).body(new AddItemResponse(Status.NOT_DONE, ZonedDateTime.now()));
+    public ResponseEntity<AddTodoResponse> addItem(@RequestBody AddTodoRequest addTodoRequest) {
+        return ResponseEntity.created(URI.create("/todo/1")).body(todoService.addTodo(addTodoRequest));
     }
 
     @PatchMapping(path = "todo/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
-    public ResponseEntity<UpdateItemResponse> getItems(@PathVariable Long id, @Valid @RequestBody UpdateItemRequest updateItemRequest) {
-        return ResponseEntity.ok().body(todoService.updateItem(id, updateItemRequest));
+    public ResponseEntity<UpdateTodoResponse> getItems(@PathVariable Long id, @Valid @RequestBody UpdateTodoRequest updateTodoRequest) {
+        return ResponseEntity.ok().body(todoService.updateTodo(id, updateTodoRequest));
     }
 
     @GetMapping(path = "todo", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
-    public ResponseEntity<GetItemsByFilterResponse> getItems(@RequestParam(name = "status", required = false) Status status) {
-        return ResponseEntity.ok().body(todoService.getItemsByFilter(status));
+    public ResponseEntity<GetTodosResponse> getItems(@RequestParam(name = "status", required = false) Status status) {
+        return ResponseEntity.ok().body(todoService.getTodosByFilter(status));
     }
 
     @GetMapping(path = "todo/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
-    public ResponseEntity<GetItemsByFilterResponse> getItems(@PathVariable Long id) {
-        return ResponseEntity.ok().body(todoService.getItemById(id));
+    public ResponseEntity<GetTodosResponse> getItems(@PathVariable Long id) {
+        return ResponseEntity.ok().body(todoService.getTodoById(id));
     }
 }

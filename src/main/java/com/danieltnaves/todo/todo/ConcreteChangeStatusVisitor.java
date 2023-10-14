@@ -1,26 +1,26 @@
 package com.danieltnaves.todo.todo;
 
-import com.danieltnaves.todo.todo.domain.Status;
-import com.danieltnaves.todo.todo.domain.UpdateItemRequest;
-import com.danieltnaves.todo.todo.domain.UpdateItemResponse;
+import com.danieltnaves.todo.todo.api.Status;
+import com.danieltnaves.todo.todo.api.UpdateTodoRequest;
+import com.danieltnaves.todo.todo.api.UpdateTodoResponse;
 import org.springframework.stereotype.Component;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 @Component
 public class ConcreteChangeStatusVisitor implements ChangeStatusVisitor {
     @Override
-    public UpdateItemResponse visit(UpdateItemRequest.UpdateStatusToDoneRequest updateStatusToDoneRequest) {
-        return new UpdateItemResponse(Status.DONE, "xxxx", ZonedDateTime.now());
+    public UpdateTodoResponse visit(UpdateTodoRequest.UpdateStatusToDoneRequest updateStatusToDoneRequest) {
+        return new UpdateTodoResponse(Status.DONE, "xxxx", LocalDateTime.now());
     }
 
     @Override
-    public UpdateItemResponse visit(UpdateItemRequest.UpdateStatusToNotDoneRequest updateStatusToNotDoneRequest) {
-        return new UpdateItemResponse(Status.NOT_DONE, "zzzzz", ZonedDateTime.now());
+    public UpdateTodoResponse visit(UpdateTodoRequest.UpdateStatusToNotDoneRequest updateStatusToNotDoneRequest) {
+        return new UpdateTodoResponse(Status.NOT_DONE, "zzzzz", LocalDateTime.now());
     }
 
     @Override
-    public UpdateItemResponse visit(UpdateItemRequest.UpdateDescription updateDescription) {
-        return new UpdateItemResponse(Status.NOT_DONE, "new description", ZonedDateTime.now());
+    public UpdateTodoResponse visit(UpdateTodoRequest.UpdateDescription updateDescription) {
+        return new UpdateTodoResponse(Status.NOT_DONE, "new description", LocalDateTime.now());
     }
 }
