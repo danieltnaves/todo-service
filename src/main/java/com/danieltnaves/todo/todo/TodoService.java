@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class TodoService {
@@ -51,8 +52,17 @@ public class TodoService {
         return !ObjectUtils.isEmpty(todo.getDueAt()) && LocalDateTime.now().isAfter(todo.getDueAt());
     }
 
-    public TodoDTO getTodosByFilter(Status status) {
-        return null;
+    public List<TodoDTO> getTodosByFilter(Status status) {
+        if (!ObjectUtils.isEmpty(status)) {
+            return todoRepository.findByStatus(Todo.Status.fromString(status.name()))
+                    .stream()
+                    .map(TodoDTO::fromTodoToTodoDTO)
+                    .toList();
+        }
+        return todoRepository.findAll()
+                .stream()
+                .map(TodoDTO::fromTodoToTodoDTO)
+                .toList();
     }
 
     public TodoDTO getTodoById(Long id) {

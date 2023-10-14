@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.*;
@@ -205,6 +206,43 @@ class TodoServiceTest {
     void testGetNonExistentTodoItem() {
         when(todoRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(TodoItemNotFoundException.class, () -> todoService.getTodoById(1L));
+    }
+
+    @Test
+    void testGetAllItems() {
+        Todo doneTodo = Todo.builder()
+                .id(1L)
+                .description(GO_TO_GROCERY_STORE)
+                .status(Todo.Status.DONE)
+                .createdAt(LocalDateTime.now().minusDays(2))
+                .doneAt(LocalDateTime.now().minusDays(1))
+                .build();
+        Todo notNodeTodo = Todo.builder()
+                .id(2L)
+                .description(GO_TO_THE_MALL)
+                .status(Todo.Status.NOT_DONE)
+                .createdAt(LocalDateTime.now())
+                .build();
+        when(todoRepository.findAll()).thenReturn(List.of(doneTodo, notNodeTodo));
+        assertThat(todoService.getTodosByFilter(null), hasSize(2));
+    }
+
+    @Test
+    void testGetAllItemsByStatus() {
+        Todo notNodeTodo = Todo.builder()
+                .id(2L)
+                .description(GO_TO_THE_MALL)
+                .status(Todo.Status.NOT_DONE)
+                .createdAt(LocalDateTime.now())
+                .build();
+        Todo notNodeTodo2 = Todo.builder()
+                .id(3L)
+                .description(GO_TO_GROCERY_STORE)
+                .status(Todo.Status.NOT_DONE)
+                .createdAt(LocalDateTime.now())
+                .build();
+        when(todoRepository.findByStatus(Todo.Status.NOT_DONE)).thenReturn(List.of(notNodeTodo, notNodeTodo2));
+        assertThat(todoService.getTodosByFilter(TodoDTO.Status.NOT_DONE), hasSize(2));
     }
 }
 

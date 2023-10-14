@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -33,7 +34,7 @@ public class TodoController {
 
     @GetMapping(path = "todo", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
-    public ResponseEntity<TodoDTO> getItems(@RequestParam(name = "status", required = false) TodoDTO.Status status) {
+    public ResponseEntity<List<TodoDTO>> getItems(@RequestParam(name = "status", required = false) TodoDTO.Status status) {
         return ResponseEntity.ok().body(todoService.getTodosByFilter(status));
     }
 
