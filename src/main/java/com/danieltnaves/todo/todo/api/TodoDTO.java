@@ -18,12 +18,12 @@ public record TodoDTO(Long id, String description, Status status, LocalDateTime 
                     return status;
                 }
             }
-            throw new IllegalArgumentException("No constant with text " + text + " found");
+            throw new IllegalArgumentException(String.format("No constant with text %s found", text));
         }
     }
 
     public static TodoDTO fromTodoToTodoDTO(Todo todo) {
-        return new TodoDTO(todo.getId(), todo.getDescription(), Status.fromString(todo.getStatus().name()), todo.getCreatedAt(), todo.getUpdatedAt(), todo.getDueAt());
+        return new TodoDTO(todo.getId(), todo.getDescription(), Status.fromString(todo.getStatus().name()), todo.getCreatedAt(), todo.getDoneAt(), todo.getDueAt());
     }
 
     public static Todo fromTodoDTOToTodo(TodoDTO todoDTO) {

@@ -39,7 +39,7 @@ public class TodoController {
 
     @GetMapping(path = "todo/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
-    public ResponseEntity<TodoDTO> getItems(@PathVariable Long id) {
+    public ResponseEntity<TodoDTO> getItem(@PathVariable Long id) {
         return ResponseEntity.ok().body(todoService.getTodoById(id));
     }
 }
