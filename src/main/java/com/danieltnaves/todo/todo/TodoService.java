@@ -3,6 +3,9 @@ package com.danieltnaves.todo.todo;
 import com.danieltnaves.todo.todo.api.*;
 import com.danieltnaves.todo.todo.api.TodoDTO.Status;
 import com.danieltnaves.todo.todo.domain.Todo;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -11,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 public class TodoService {
 
     public static final String TODO_ITEM_NOT_FOUND_MESSAGE = "The Todo item with the ID %d wasn't found";
@@ -52,14 +56,14 @@ public class TodoService {
         return !ObjectUtils.isEmpty(todo.getDueAt()) && LocalDateTime.now().isAfter(todo.getDueAt());
     }
 
-    public List<TodoDTO> getTodosByFilter(Status status) {
+    public List<TodoDTO> getTodosByFilter(Status status, Integer page, Integer size) {
         if (!ObjectUtils.isEmpty(status)) {
-            return todoRepository.findByStatus(Todo.Status.fromString(status.name()))
+            return todoRepository.findAllByStatus(Todo.Status.fromString(status.name()), PageRequest.of(page, size))
                     .stream()
                     .map(TodoDTO::fromTodoToTodoDTO)
                     .toList();
         }
-        return todoRepository.findAll()
+        return todoRepository.findAll(PageRequest.of(page, size))
                 .stream()
                 .map(TodoDTO::fromTodoToTodoDTO)
                 .toList();
@@ -79,5 +83,10 @@ public class TodoService {
                 .status(Todo.Status.NOT_DONE)
                 .createdAt(LocalDateTime.now())
                 .build()));
+    }
+
+    @Scheduled(fixedRate = 30000) //30 seconds
+    public void checkDueDatesSchedule() {
+        log.info("Starting the execution of the scheduler to change the status of due todo items");
     }
 }

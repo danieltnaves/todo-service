@@ -34,8 +34,10 @@ public class TodoController {
 
     @GetMapping(path = "todo", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
-    public ResponseEntity<List<TodoDTO>> getItems(@RequestParam(name = "status", required = false) TodoDTO.Status status) {
-        return ResponseEntity.ok().body(todoService.getTodosByFilter(status));
+    public ResponseEntity<List<TodoDTO>> getItems(@RequestParam(name = "status", required = false) TodoDTO.Status status,
+                                                  @RequestParam(name = "page") Integer page,
+                                                  @RequestParam(name = "size") Integer size) {
+        return ResponseEntity.ok().body(todoService.getTodosByFilter(status, page, size));
     }
 
     @GetMapping(path = "todo/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

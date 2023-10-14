@@ -4,6 +4,9 @@ import com.danieltnaves.todo.todo.api.*;
 import com.danieltnaves.todo.todo.domain.Todo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -223,8 +226,11 @@ class TodoServiceTest {
                 .status(Todo.Status.NOT_DONE)
                 .createdAt(LocalDateTime.now())
                 .build();
-        when(todoRepository.findAll()).thenReturn(List.of(doneTodo, notNodeTodo));
-        assertThat(todoService.getTodosByFilter(null), hasSize(2));
+
+        Page<Todo> todoPage = new PageImpl<>(List.of(doneTodo, notNodeTodo), PageRequest.of(0, 5), 2);
+        when(todoRepository.findAll(PageRequest.of(0, 5))).thenReturn(todoPage);
+
+        assertThat(todoService.getTodosByFilter(null, 0, 5), hasSize(2));
     }
 
     @Test
@@ -241,8 +247,11 @@ class TodoServiceTest {
                 .status(Todo.Status.NOT_DONE)
                 .createdAt(LocalDateTime.now())
                 .build();
-        when(todoRepository.findByStatus(Todo.Status.NOT_DONE)).thenReturn(List.of(notNodeTodo, notNodeTodo2));
-        assertThat(todoService.getTodosByFilter(TodoDTO.Status.NOT_DONE), hasSize(2));
+
+        Page<Todo> todoPage = new PageImpl<>(List.of(notNodeTodo, notNodeTodo2), PageRequest.of(0, 5), 2);
+        when(todoRepository.findAllByStatus(Todo.Status.NOT_DONE, PageRequest.of(0, 5))).thenReturn(todoPage);
+
+        assertThat(todoService.getTodosByFilter(TodoDTO.Status.NOT_DONE, 0, 5), hasSize(2));
     }
 }
 
