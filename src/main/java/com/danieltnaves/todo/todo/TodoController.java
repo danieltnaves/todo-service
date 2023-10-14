@@ -21,25 +21,25 @@ public class TodoController {
 
     @PostMapping(path = "todo", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(CREATED)
-    public ResponseEntity<AddTodoResponse> addItem(@RequestBody AddTodoRequest addTodoRequest) {
-        return ResponseEntity.created(URI.create("/todo/1")).body(todoService.addTodo(addTodoRequest));
+    public ResponseEntity<TodoDTO> addItem(@RequestBody TodoDTO todoDTO) {
+        return ResponseEntity.created(URI.create("/todo/1")).body(todoService.addTodo(todoDTO));
     }
 
     @PatchMapping(path = "todo/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
-    public ResponseEntity<UpdateTodoResponse> getItems(@PathVariable Long id, @Valid @RequestBody UpdateTodoRequest updateTodoRequest) {
-        return ResponseEntity.ok().body(todoService.updateTodo(id, updateTodoRequest));
+    public ResponseEntity<TodoDTO> getItems(@PathVariable Long id, @Valid @RequestBody TodoDTO todoDTO) {
+        return ResponseEntity.ok().body(todoService.updateTodo(id, todoDTO));
     }
 
     @GetMapping(path = "todo", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
-    public ResponseEntity<GetTodosResponse> getItems(@RequestParam(name = "status", required = false) Status status) {
+    public ResponseEntity<TodoDTO> getItems(@RequestParam(name = "status", required = false) TodoDTO.Status status) {
         return ResponseEntity.ok().body(todoService.getTodosByFilter(status));
     }
 
     @GetMapping(path = "todo/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
-    public ResponseEntity<GetTodosResponse> getItems(@PathVariable Long id) {
+    public ResponseEntity<TodoDTO> getItems(@PathVariable Long id) {
         return ResponseEntity.ok().body(todoService.getTodoById(id));
     }
 }

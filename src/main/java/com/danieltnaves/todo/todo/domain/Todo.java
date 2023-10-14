@@ -1,11 +1,14 @@
 package com.danieltnaves.todo.todo.domain;
 
-import com.danieltnaves.todo.todo.api.Status;
+import com.danieltnaves.todo.todo.api.TodoDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -30,4 +33,18 @@ public class Todo {
 
     private LocalDateTime dueAt;
 
+    public enum Status {
+
+        NOT_DONE, DONE, PAST_DUE;
+
+        public static Status fromString(String text) {
+            for (Status status : Todo.Status.values()) {
+                if (status.name().equalsIgnoreCase(text)) {
+                    return status;
+                }
+            }
+            throw new IllegalArgumentException("No constant with text " + text + " found");
+        }
+
+    }
 }
