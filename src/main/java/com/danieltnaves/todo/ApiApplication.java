@@ -1,4 +1,4 @@
-package com.danieltnaves.todo.api;
+package com.danieltnaves.todo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
