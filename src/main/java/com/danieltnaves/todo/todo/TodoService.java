@@ -56,7 +56,8 @@ public class TodoService {
     }
 
     public TodoDTO getTodoById(Long id) {
-        return null;
+        return TodoDTO.fromTodoToTodoDTO(todoRepository.findById(id)
+                .orElseThrow(() -> new TodoItemNotFoundException(String.format(TODO_ITEM_NOT_FOUND_MESSAGE, id))));
     }
 
     public TodoDTO addTodo(TodoDTO todoDTO) {

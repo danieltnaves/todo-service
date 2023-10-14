@@ -17,6 +17,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 class TodoServiceTest {
 
+    public static final String GO_TO_GROCERY_STORE = "Go to grocery store";
+
+    public static final String GO_TO_THE_MALL = "Go to the mall";
+
     TodoRepository todoRepository;
 
     TodoService todoService;
@@ -31,14 +35,14 @@ class TodoServiceTest {
         LocalDateTime currentDate = LocalDateTime.now();
         Todo todo = Todo.builder()
                 .id(1L)
-                .description("Go to grocery store")
+                .description(GO_TO_GROCERY_STORE)
                 .status(Todo.Status.NOT_DONE)
                 .createdAt(currentDate)
                 .build();
 
         when(todoRepository.save(any(Todo.class))).thenReturn(todo);
         TodoDTO todoDTO = TodoDTO.builder()
-                .description("Go to grocery store")
+                .description(GO_TO_GROCERY_STORE)
                 .build();
         Todo addedTodo = TodoDTO.fromTodoDTOToTodo(todoService.addTodo(todoDTO));
 
@@ -58,17 +62,17 @@ class TodoServiceTest {
         LocalDateTime currentDate = LocalDateTime.now();
         Todo todo = Todo.builder()
                 .id(1L)
-                .description("Go to grocery store")
+                .description(GO_TO_GROCERY_STORE)
                 .status(Todo.Status.NOT_DONE)
                 .createdAt(currentDate)
                 .dueAt(currentDate.plusDays(3))
                 .build();
 
         when(todoRepository.findById(1L)).thenReturn(Optional.of(todo));
-        todo.setDescription("Go to the mall");
+        todo.setDescription(GO_TO_THE_MALL);
         when(todoRepository.save(todo)).thenReturn(todo);
         TodoDTO todoDTO = TodoDTO.builder()
-                .description("Go to the mall")
+                .description(GO_TO_THE_MALL)
                 .build();
         Todo changedTodo = TodoDTO.fromTodoDTOToTodo(todoService.updateTodo(1L, todoDTO));
 
@@ -91,7 +95,7 @@ class TodoServiceTest {
         LocalDateTime dueDate = LocalDateTime.now().minusDays(3);
         Todo todo = Todo.builder()
                 .id(1L)
-                .description("Go to grocery store")
+                .description(GO_TO_GROCERY_STORE)
                 .status(Todo.Status.NOT_DONE)
                 .createdAt(dueDate)
                 .doneAt(dueDate)
@@ -99,7 +103,7 @@ class TodoServiceTest {
                 .build();
 
         when(todoRepository.findById(1L)).thenReturn(Optional.of(todo));
-        TodoDTO todoDTO = TodoDTO.builder().description("Go to the mall").build();
+        TodoDTO todoDTO = TodoDTO.builder().description(GO_TO_THE_MALL).build();
 
         assertThrows(UpdatePastDueTodoItemException.class, () -> todoService.updateTodo(1L, todoDTO));
     }
@@ -109,14 +113,14 @@ class TodoServiceTest {
         LocalDateTime currentDate = LocalDateTime.now();
         Todo todo = Todo.builder()
                 .id(1L)
-                .description("Go to grocery store")
+                .description(GO_TO_GROCERY_STORE)
                 .status(Todo.Status.DONE)
                 .createdAt(currentDate)
                 .doneAt(currentDate)
                 .build();
 
         when(todoRepository.findById(1L)).thenReturn(Optional.of(todo));
-        TodoDTO todoDTO = TodoDTO.builder().description("Go to the mall").build();
+        TodoDTO todoDTO = TodoDTO.builder().description(GO_TO_THE_MALL).build();
 
         assertThrows(UpdateDoneTodoItemException.class, () -> todoService.updateTodo(1L, todoDTO));
     }
@@ -126,7 +130,7 @@ class TodoServiceTest {
         LocalDateTime currentDate = LocalDateTime.now();
         Todo todo = Todo.builder()
                 .id(1L)
-                .description("Go to grocery store")
+                .description(GO_TO_GROCERY_STORE)
                 .status(Todo.Status.NOT_DONE)
                 .createdAt(currentDate)
                 .build();
@@ -134,7 +138,7 @@ class TodoServiceTest {
 
         Todo savedTodo = Todo.builder()
                 .id(1L)
-                .description("Go to grocery store")
+                .description(GO_TO_GROCERY_STORE)
                 .status(Todo.Status.DONE)
                 .createdAt(currentDate)
                 .doneAt(LocalDateTime.now())
@@ -155,7 +159,7 @@ class TodoServiceTest {
         LocalDateTime currentDate = LocalDateTime.now();
         Todo todo = Todo.builder()
                 .id(1L)
-                .description("Go to grocery store")
+                .description(GO_TO_GROCERY_STORE)
                 .status(Todo.Status.DONE)
                 .createdAt(currentDate)
                 .build();
@@ -163,7 +167,7 @@ class TodoServiceTest {
 
         Todo savedTodo = Todo.builder()
                 .id(1L)
-                .description("Go to grocery store")
+                .description(GO_TO_GROCERY_STORE)
                 .status(Todo.Status.NOT_DONE)
                 .createdAt(currentDate)
                 .build();
@@ -176,6 +180,31 @@ class TodoServiceTest {
 
         assertThat(doneTodo.getStatus(), is(Todo.Status.NOT_DONE));
         assertThat(doneTodo.getDoneAt(), nullValue());
+    }
+
+    @Test
+    void testGetTodoItem() {
+        LocalDateTime currentDate = LocalDateTime.now();
+
+        Todo savedTodo = Todo.builder()
+                .id(1L)
+                .description(GO_TO_GROCERY_STORE)
+                .status(Todo.Status.NOT_DONE)
+                .createdAt(currentDate)
+                .build();
+        when(todoRepository.findById(1L)).thenReturn(Optional.of(savedTodo));
+
+        Todo todo = TodoDTO.fromTodoDTOToTodo(todoService.getTodoById(1L));
+        assertThat(todo.getId(), is(1L));
+        assertThat(todo.getDescription(), is(GO_TO_GROCERY_STORE));
+        assertThat(todo.getStatus(), is(Todo.Status.NOT_DONE));
+        assertThat(todo.getCreatedAt(), is(currentDate));
+    }
+
+    @Test
+    void testGetNonExistentTodoItem() {
+        when(todoRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(TodoItemNotFoundException.class, () -> todoService.getTodoById(1L));
     }
 }
 
