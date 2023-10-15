@@ -23,7 +23,8 @@ public class TodoController {
     @PostMapping(path = "todo", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(CREATED)
     public ResponseEntity<TodoDTO> addItem(@RequestBody TodoDTO todoDTO) {
-        return ResponseEntity.created(URI.create("/todo/1")).body(todoService.addTodo(todoDTO));
+        TodoDTO createdTodo = todoService.addTodo(todoDTO);
+        return ResponseEntity.created(URI.create(String.format("/todo/%s", createdTodo.id()))).body(createdTodo);
     }
 
     @PatchMapping(path = "todo/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -34,10 +35,10 @@ public class TodoController {
 
     @GetMapping(path = "todo", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
-    public ResponseEntity<List<TodoDTO>> getItems(@RequestParam(name = "status", required = false) TodoDTO.Status status,
+    public ResponseEntity<List<TodoDTO>> getItems(@RequestParam(name = "onlyPastDueItems", required = false) boolean onlyPastDueItems,
                                                   @RequestParam(name = "page") Integer page,
                                                   @RequestParam(name = "size") Integer size) {
-        return ResponseEntity.ok().body(todoService.getTodosByFilter(status, page, size));
+        return ResponseEntity.ok().body(todoService.getTodosByFilter(onlyPastDueItems, page, size));
     }
 
     @GetMapping(path = "todo/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -1,5 +1,7 @@
-package com.danieltnaves.todo.todo;
+package com.danieltnaves.todo.unit.todo;
 
+import com.danieltnaves.todo.todo.TodoRepository;
+import com.danieltnaves.todo.todo.TodoService;
 import com.danieltnaves.todo.todo.api.*;
 import com.danieltnaves.todo.todo.domain.Todo;
 import com.danieltnaves.todo.todo.event.TodoEventPublisherService;
@@ -234,7 +236,7 @@ class TodoServiceTest {
         Page<Todo> todoPage = new PageImpl<>(List.of(doneTodo, notNodeTodo), PageRequest.of(0, 5), 2);
         when(todoRepository.findAll(PageRequest.of(0, 5))).thenReturn(todoPage);
 
-        assertThat(todoService.getTodosByFilter(null, 0, 5), hasSize(2));
+        assertThat(todoService.getTodosByFilter(false, 0, 5), hasSize(2));
     }
 
     @Test
@@ -242,20 +244,20 @@ class TodoServiceTest {
         Todo notNodeTodo = Todo.builder()
                 .id(2L)
                 .description(GO_TO_THE_MALL)
-                .status(Todo.Status.NOT_DONE)
+                .status(Todo.Status.PAST_DUE)
                 .createdAt(LocalDateTime.now())
                 .build();
         Todo notNodeTodo2 = Todo.builder()
                 .id(3L)
                 .description(GO_TO_GROCERY_STORE)
-                .status(Todo.Status.NOT_DONE)
+                .status(Todo.Status.PAST_DUE)
                 .createdAt(LocalDateTime.now())
                 .build();
 
         Page<Todo> todoPage = new PageImpl<>(List.of(notNodeTodo, notNodeTodo2), PageRequest.of(0, 5), 2);
-        when(todoRepository.findAllByStatus(Todo.Status.NOT_DONE, PageRequest.of(0, 5))).thenReturn(todoPage);
+        when(todoRepository.findAllPastDueItems(PageRequest.of(0, 5))).thenReturn(todoPage);
 
-        assertThat(todoService.getTodosByFilter(TodoDTO.Status.NOT_DONE, 0, 5), hasSize(2));
+        assertThat(todoService.getTodosByFilter(true, 0, 5), hasSize(2));
     }
 }
 

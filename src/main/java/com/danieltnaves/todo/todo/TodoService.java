@@ -60,9 +60,9 @@ public class TodoService {
         return !ObjectUtils.isEmpty(todo.getDueAt()) && LocalDateTime.now().isAfter(todo.getDueAt());
     }
 
-    public List<TodoDTO> getTodosByFilter(Status status, Integer page, Integer size) {
-        if (!ObjectUtils.isEmpty(status)) {
-            return todoRepository.findAllByStatus(Todo.Status.fromString(status.name()), PageRequest.of(page, size))
+    public List<TodoDTO> getTodosByFilter(boolean onlyPastDueItems, Integer page, Integer size) {
+        if (onlyPastDueItems) {
+            return todoRepository.findAllPastDueItems(PageRequest.of(page, size))
                     .stream()
                     .map(this::updatePastDueItemStatus)
                     .map(TodoDTO::fromTodoToTodoDTO)
@@ -99,6 +99,7 @@ public class TodoService {
                 .build()));
     }
 
+    @Transactional
     public void updateTodoStatusById(Long id, Todo.Status status) {
         todoRepository.updateTodoStatusById(id, status);
     }

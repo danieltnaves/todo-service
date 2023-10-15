@@ -18,7 +18,6 @@ public class TodoEventListener {
     }
 
     @EventListener
-    @Transactional
     public void onUpdatePastDueEvent(UpdatePastDueEvent event) {
         log.info("Event received for past due item {}", event.getId());
         todoService.updateTodoStatusById(event.getId(), Todo.Status.PAST_DUE);
