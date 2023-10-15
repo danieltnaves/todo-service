@@ -5,7 +5,6 @@ import com.danieltnaves.todo.todo.domain.Todo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
-import org.springframework.transaction.annotation.Transactional;
 
 @Configuration
 @Slf4j

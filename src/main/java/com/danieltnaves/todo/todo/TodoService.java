@@ -19,9 +19,11 @@ public class TodoService {
 
     public static final String TODO_ITEM_NOT_FOUND_MESSAGE = "The Todo item with the ID %d wasn't found";
 
-    public static final String PAST_DUE_TODO_ITEM_MESSAGE = "It's not allowed to update the information for the Todo id %d. because it's a past due item";
+    public static final String PAST_DUE_TODO_ITEM_MESSAGE = "It's not allowed to update the information for the Todo id %d because it's a past due item";
 
     public static final String TODO_ITEM_MARKED_AS_DONE_MESSAGE = "The Todo item %d was already marked as DONE. It needs to be updated to NOT_DONE before performing this operation";
+
+    public static final String UPDATE_PAST_DUE_WITH_FUTURE_DATE_MESSAGE = "An operation to change the status to PAST_DUE with a future date is not allowed for the Todo id %d";
 
     private final TodoRepository todoRepository;
 
@@ -35,6 +37,10 @@ public class TodoService {
     @Transactional
     public TodoDTO updateTodo(Long id, TodoDTO todoDTO) {
         Todo todo = todoRepository.findById(id).orElseThrow(() -> new TodoItemNotFoundException(String.format(TODO_ITEM_NOT_FOUND_MESSAGE, id)));
+
+        if (isPastDueUpdateWithFutureDate(todoDTO)) {
+            throw new UpdatePastDueTodoItemWithFutureDateException(String.format(UPDATE_PAST_DUE_WITH_FUTURE_DATE_MESSAGE, id));
+        }
 
         if (isDueTodoItem(todo)) {
             throw new UpdatePastDueTodoItemException(String.format(PAST_DUE_TODO_ITEM_MESSAGE, id));
@@ -50,6 +56,10 @@ public class TodoService {
         todo.setDueAt(!ObjectUtils.isEmpty(todoDTO.dueAt()) ? todoDTO.dueAt() : todo.getDueAt());
 
         return TodoDTO.fromTodoToTodoDTO(todoRepository.save(todo));
+    }
+
+    private static boolean isPastDueUpdateWithFutureDate(TodoDTO todoDTO) {
+        return Status.PAST_DUE.equals(todoDTO.status()) && !ObjectUtils.isEmpty(todoDTO.dueAt()) && LocalDateTime.now().isBefore(todoDTO.dueAt());
     }
 
     private static boolean isDoneTodoItem(TodoDTO todoDTO, Todo todo) {

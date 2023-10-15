@@ -31,8 +31,13 @@ public class ApiResponseEntityExceptionHandler extends ResponseEntityExceptionHa
         return new ResponseEntity<>(new ApiError(BAD_REQUEST, exception.getMessage(), request.getDescription(false)), BAD_REQUEST);
     }
 
+    @ExceptionHandler(UpdatePastDueTodoItemWithFutureDateException.class)
+    public ResponseEntity<Object> handleUpdatePastDueTodoItemWithFutureDateException(UpdatePastDueTodoItemWithFutureDateException exception, WebRequest request) {
+        return new ResponseEntity<>(new ApiError(BAD_REQUEST, exception.getMessage(), request.getDescription(false)), BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGenericException(Exception exception, WebRequest request) {
-        return new ResponseEntity<>(new ApiError(INTERNAL_SERVER_ERROR, "An internal server error occurred.", request.getDescription(false)), INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ApiError(INTERNAL_SERVER_ERROR, exception.getMessage(), request.getDescription(false)), INTERNAL_SERVER_ERROR);
     }
 }
