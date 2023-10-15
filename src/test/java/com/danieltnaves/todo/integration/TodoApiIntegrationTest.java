@@ -123,7 +123,7 @@ class TodoApiIntegrationTest {
 		IntStream.rangeClosed(1, 5).forEach(i -> restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class));
 
 		TodoDTO pastDueTodo = TodoDTO.builder()
-				.status(Status.NOT_DONE)
+				.status(Status.PAST_DUE)
 				.dueAt(LocalDateTime.now().minusDays(2))
 				.build();
 
@@ -169,6 +169,7 @@ class TodoApiIntegrationTest {
 		assertThat(todo, is(notNullValue()));
 
 		TodoDTO patchedPastDueTodo = TodoDTO.builder()
+				.status(Status.PAST_DUE)
 				.dueAt(LocalDateTime.now().minusDays(2))
 				.build();
 		restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class);
@@ -192,6 +193,7 @@ class TodoApiIntegrationTest {
 		assertThat(todo, is(notNullValue()));
 
 		TodoDTO patchedPastDueTodo = TodoDTO.builder()
+				.status(Status.PAST_DUE)
 				.dueAt(LocalDateTime.now().minusDays(2))
 				.build();
 		restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class);
@@ -251,6 +253,23 @@ class TodoApiIntegrationTest {
 		TodoDTO patchedPastDueTodo = TodoDTO.builder()
 				.status(Status.PAST_DUE)
 				.dueAt(LocalDateTime.now().plusDays(2))
+				.build();
+
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class));
+	}
+
+	@Test
+	void testUpdatePastDueStatusChange() {
+		TodoDTO todoDTO = TodoDTO.builder()
+				.description("New Todo Item")
+				.build();
+
+		ResponseEntity<TodoDTO> response = restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class);
+		TodoDTO todo = response.getBody();
+		assertThat(todo, is(notNullValue()));
+
+		TodoDTO patchedPastDueTodo = TodoDTO.builder()
+				.dueAt(LocalDateTime.now().minusDays(2))
 				.build();
 
 		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class));

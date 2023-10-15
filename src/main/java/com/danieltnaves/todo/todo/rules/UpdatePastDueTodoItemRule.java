@@ -9,9 +9,9 @@ import org.springframework.util.ObjectUtils;
 import java.time.LocalDateTime;
 
 @Component
-public class UpdatePastDueTodoItemRule implements TodoItemChangeStateRule {
+public class UpdatePastDueTodoItemRule implements UpdateTodoItemRule {
 
-    public static final String PAST_DUE_TODO_ITEM_MESSAGE = "It's not allowed to update the information for the Todo id %d because it's a past due item";
+    private static final String PAST_DUE_TODO_ITEM_MESSAGE = "It's not allowed to update the information for the Todo id %d because it's a past due item";
 
     @Override
     public void evaluate(TodoDTO todoDTO, Todo todo) {

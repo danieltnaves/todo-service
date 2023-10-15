@@ -6,9 +6,9 @@ import com.danieltnaves.todo.todo.domain.Todo;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UpdateDoneTodoItemRule implements TodoItemChangeStateRule {
+public class UpdateDoneUpdateTodoItemRule implements UpdateTodoItemRule {
 
-    public static final String TODO_ITEM_MARKED_AS_DONE_MESSAGE = "The Todo item %d was already marked as DONE. It needs to be updated to NOT_DONE before performing this operation";
+    private static final String TODO_ITEM_MARKED_AS_DONE_MESSAGE = "The Todo item %d was already marked as DONE. It needs to be updated to NOT_DONE before performing this operation";
 
     @Override
     public void evaluate(TodoDTO todoDTO, Todo todo) {

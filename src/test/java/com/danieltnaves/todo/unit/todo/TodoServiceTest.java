@@ -5,8 +5,8 @@ import com.danieltnaves.todo.todo.TodoService;
 import com.danieltnaves.todo.todo.api.*;
 import com.danieltnaves.todo.todo.domain.Todo;
 import com.danieltnaves.todo.todo.event.TodoEventPublisherService;
-import com.danieltnaves.todo.todo.rules.PastDueUpdateWithFutureDateRule;
-import com.danieltnaves.todo.todo.rules.UpdateDoneTodoItemRule;
+import com.danieltnaves.todo.todo.rules.PastDueUpdateWithFutureDateRuleUpdate;
+import com.danieltnaves.todo.todo.rules.UpdateDoneUpdateTodoItemRule;
 import com.danieltnaves.todo.todo.rules.UpdatePastDueTodoItemRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ class TodoServiceTest {
     void setUp() {
         todoRepository = mock(TodoRepository.class);
         todoEventPublisherService = mock(TodoEventPublisherService.class);
-        todoService = new TodoService(todoRepository, todoEventPublisherService, List.of(new PastDueUpdateWithFutureDateRule(), new UpdatePastDueTodoItemRule(), new UpdateDoneTodoItemRule()));
+        todoService = new TodoService(todoRepository, todoEventPublisherService, List.of(new PastDueUpdateWithFutureDateRuleUpdate(), new UpdatePastDueTodoItemRule(), new UpdateDoneUpdateTodoItemRule()));
     }
 
     @Test

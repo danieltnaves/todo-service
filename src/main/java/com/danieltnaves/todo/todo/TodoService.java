@@ -4,7 +4,7 @@ import com.danieltnaves.todo.todo.api.*;
 import com.danieltnaves.todo.todo.api.TodoDTO.Status;
 import com.danieltnaves.todo.todo.domain.Todo;
 import com.danieltnaves.todo.todo.event.TodoEventPublisherService;
-import com.danieltnaves.todo.todo.rules.TodoItemChangeStateRule;
+import com.danieltnaves.todo.todo.rules.UpdateTodoItemRule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -26,31 +26,31 @@ public class TodoService {
 
     private final TodoEventPublisherService todoEventPublisherService;
 
-    private final List<TodoItemChangeStateRule> todoItemChangeStateRules;
+    private final List<UpdateTodoItemRule> updateTodoItemRules;
 
-    public TodoService(TodoRepository todoRepository, TodoEventPublisherService todoEventPublisherService, List<TodoItemChangeStateRule> todoItemChangeStateRules) {
+    public TodoService(TodoRepository todoRepository, TodoEventPublisherService todoEventPublisherService, List<UpdateTodoItemRule> updateTodoItemRules) {
         this.todoRepository = todoRepository;
         this.todoEventPublisherService = todoEventPublisherService;
-        this.todoItemChangeStateRules = todoItemChangeStateRules;
+        this.updateTodoItemRules = updateTodoItemRules;
     }
 
     @Transactional
     public TodoDTO updateTodo(Long id, TodoDTO todoDTO) {
         Todo todo = todoRepository.findById(id).orElseThrow(() -> new TodoItemNotFoundException(String.format(TODO_ITEM_NOT_FOUND_MESSAGE, id)));
-        evaluateChangeStatusRules(todoDTO, todo);
-        changeTodoState(todoDTO, todo);
+        evaluateUpdateTodoItemRules(todoDTO, todo);
+        updateTodoItem(todoDTO, todo);
         return TodoDTO.fromTodoToTodoDTO(todoRepository.save(todo));
     }
 
-    private void changeTodoState(TodoDTO todoDTO, Todo todo) {
+    private void updateTodoItem(TodoDTO todoDTO, Todo todo) {
         todo.setStatus(!ObjectUtils.isEmpty(todoDTO.status()) ? Todo.Status.fromString(todoDTO.status().name()) : todo.getStatus());
         todo.setDescription(!ObjectUtils.isEmpty(todoDTO.description()) ? todoDTO.description() : todo.getDescription());
         todo.setDoneAt(Status.DONE.equals(todoDTO.status()) ? LocalDateTime.now() : null);
         todo.setDueAt(!ObjectUtils.isEmpty(todoDTO.dueAt()) ? todoDTO.dueAt() : todo.getDueAt());
     }
 
-    private void evaluateChangeStatusRules(TodoDTO todoDTO, Todo todo) {
-        todoItemChangeStateRules.forEach(todoItemChangeStateRule -> todoItemChangeStateRule.evaluate(todoDTO, todo));
+    private void evaluateUpdateTodoItemRules(TodoDTO todoDTO, Todo todo) {
+        updateTodoItemRules.forEach(updateTodoItemRule -> updateTodoItemRule.evaluate(todoDTO, todo));
     }
 
     public List<TodoDTO> getTodosByFilter(boolean onlyPastDueItems, Integer page, Integer size) {
