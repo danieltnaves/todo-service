@@ -37,14 +37,20 @@ public class TodoService {
     @Transactional
     public TodoDTO updateTodo(Long id, TodoDTO todoDTO) {
         Todo todo = todoRepository.findById(id).orElseThrow(() -> new TodoItemNotFoundException(String.format(TODO_ITEM_NOT_FOUND_MESSAGE, id)));
-        todoItemChangeStateRules.forEach(todoItemChangeStateRule -> todoItemChangeStateRule.evaluate(todoDTO, todo));
+        evaluateChangeStatusRules(todoDTO, todo);
+        changeTodoState(todoDTO, todo);
+        return TodoDTO.fromTodoToTodoDTO(todoRepository.save(todo));
+    }
 
+    private void changeTodoState(TodoDTO todoDTO, Todo todo) {
         todo.setStatus(!ObjectUtils.isEmpty(todoDTO.status()) ? Todo.Status.fromString(todoDTO.status().name()) : todo.getStatus());
         todo.setDescription(!ObjectUtils.isEmpty(todoDTO.description()) ? todoDTO.description() : todo.getDescription());
         todo.setDoneAt(Status.DONE.equals(todoDTO.status()) ? LocalDateTime.now() : null);
         todo.setDueAt(!ObjectUtils.isEmpty(todoDTO.dueAt()) ? todoDTO.dueAt() : todo.getDueAt());
+    }
 
-        return TodoDTO.fromTodoToTodoDTO(todoRepository.save(todo));
+    private void evaluateChangeStatusRules(TodoDTO todoDTO, Todo todo) {
+        todoItemChangeStateRules.forEach(todoItemChangeStateRule -> todoItemChangeStateRule.evaluate(todoDTO, todo));
     }
 
     public List<TodoDTO> getTodosByFilter(boolean onlyPastDueItems, Integer page, Integer size) {
