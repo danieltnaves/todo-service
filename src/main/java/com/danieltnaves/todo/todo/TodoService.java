@@ -54,14 +54,19 @@ public class TodoService {
     }
 
     public List<TodoDTO> getTodosByFilter(boolean onlyPastDueItems, Integer page, Integer size) {
-        if (onlyPastDueItems) {
-            return todoRepository.findAllPastDueItems(PageRequest.of(page, size))
-                    .stream()
-                    .map(this::updatePastDueItemStatus)
-                    .map(TodoDTO::fromTodoToTodoDTO)
-                    .toList();
-        }
+        return onlyPastDueItems ? findAllPastDueItem(page, size) : fiendAllItems(page, size);
+    }
+
+    private List<TodoDTO> fiendAllItems(Integer page, Integer size) {
         return todoRepository.findAll(PageRequest.of(page, size))
+                .stream()
+                .map(this::updatePastDueItemStatus)
+                .map(TodoDTO::fromTodoToTodoDTO)
+                .toList();
+    }
+
+    private List<TodoDTO> findAllPastDueItem(Integer page, Integer size) {
+        return todoRepository.findAllPastDueItems(PageRequest.of(page, size))
                 .stream()
                 .map(this::updatePastDueItemStatus)
                 .map(TodoDTO::fromTodoToTodoDTO)
