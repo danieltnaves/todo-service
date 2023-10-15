@@ -3,9 +3,9 @@ package com.danieltnaves.todo.todo;
 import com.danieltnaves.todo.todo.api.*;
 import com.danieltnaves.todo.todo.api.TodoDTO.Status;
 import com.danieltnaves.todo.todo.domain.Todo;
+import com.danieltnaves.todo.todo.event.TodoEventPublisherService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -25,8 +25,11 @@ public class TodoService {
 
     private final TodoRepository todoRepository;
 
-    public TodoService(TodoRepository todoRepository) {
+    private final TodoEventPublisherService todoEventPublisherService;
+
+    public TodoService(TodoRepository todoRepository, TodoEventPublisherService todoEventPublisherService) {
         this.todoRepository = todoRepository;
+        this.todoEventPublisherService = todoEventPublisherService;
     }
 
     @Transactional
@@ -37,18 +40,19 @@ public class TodoService {
             throw new UpdatePastDueTodoItemException(String.format(PAST_DUE_TODO_ITEM_MESSAGE, id));
         }
 
-        if (isDoneUpdateOperationAllowed(todoDTO, todo)) {
+        if (isDoneTodoItem(todoDTO, todo)) {
             throw new UpdateDoneTodoItemException(String.format(TODO_ITEM_MARKED_AS_DONE_MESSAGE, id));
         }
 
         todo.setStatus(!ObjectUtils.isEmpty(todoDTO.status()) ? Todo.Status.fromString(todoDTO.status().name()) : todo.getStatus());
         todo.setDescription(!ObjectUtils.isEmpty(todoDTO.description()) ? todoDTO.description() : todo.getDescription());
         todo.setDoneAt(Status.DONE.equals(todoDTO.status()) ? LocalDateTime.now() : null);
+        todo.setDueAt(!ObjectUtils.isEmpty(todoDTO.dueAt()) ? todoDTO.dueAt() : todo.getDueAt());
 
         return TodoDTO.fromTodoToTodoDTO(todoRepository.save(todo));
     }
 
-    private static boolean isDoneUpdateOperationAllowed(TodoDTO todoDTO, Todo todo) {
+    private static boolean isDoneTodoItem(TodoDTO todoDTO, Todo todo) {
         return Todo.Status.DONE.equals(todo.getStatus()) && !Status.NOT_DONE.equals(todoDTO.status());
     }
 
@@ -60,17 +64,27 @@ public class TodoService {
         if (!ObjectUtils.isEmpty(status)) {
             return todoRepository.findAllByStatus(Todo.Status.fromString(status.name()), PageRequest.of(page, size))
                     .stream()
+                    .map(this::updatePastDueItemStatus)
                     .map(TodoDTO::fromTodoToTodoDTO)
                     .toList();
         }
         return todoRepository.findAll(PageRequest.of(page, size))
                 .stream()
+                .map(this::updatePastDueItemStatus)
                 .map(TodoDTO::fromTodoToTodoDTO)
                 .toList();
     }
 
+    private Todo updatePastDueItemStatus(Todo todo) {
+        if (isUpdatablePastDueItem(todo)) {
+            todo.setStatus(Todo.Status.PAST_DUE);
+        }
+        return todo;
+    }
+
     public TodoDTO getTodoById(Long id) {
         return TodoDTO.fromTodoToTodoDTO(todoRepository.findById(id)
+                .map(this::updatePastDueItemStatus)
                 .orElseThrow(() -> new TodoItemNotFoundException(String.format(TODO_ITEM_NOT_FOUND_MESSAGE, id))));
     }
 
@@ -85,8 +99,15 @@ public class TodoService {
                 .build()));
     }
 
-    @Scheduled(fixedRate = 30000) //30 seconds
-    public void checkDueDatesSchedule() {
-        log.info("Starting the execution of the scheduler to change the status of due todo items");
+    public void updateTodoStatusById(Long id, Todo.Status status) {
+        todoRepository.updateTodoStatusById(id, status);
+    }
+
+    private boolean isUpdatablePastDueItem(Todo todo) {
+        if (!ObjectUtils.isEmpty(todo.getDueAt()) && LocalDateTime.now().isAfter(todo.getDueAt()) && Todo.Status.NOT_DONE.equals(todo.getStatus())) {
+            todoEventPublisherService.publishUpdatePastDueEvent(todo);
+            return true;
+        }
+        return false;
     }
 }

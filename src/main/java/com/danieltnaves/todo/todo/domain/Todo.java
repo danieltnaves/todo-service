@@ -1,11 +1,7 @@
 package com.danieltnaves.todo.todo.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "TODO")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,20 +19,25 @@ public class Todo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
     private Long id;
 
-    @NotBlank(message = "description is required")
-    @Size(min = 1, max = 200, message = "Description must be between 2 and 200 characters")
+    @NotNull
+    @Column(name = "DESCRIPTION", nullable = false)
     private String description;
 
-    @NotBlank(message = "status is required")
+    @NotNull
+    @Column(name = "STATUS", nullable = false)
     private Status status;
 
-    @NotBlank(message = "createdAt is required")
+    @NotNull
+    @Column(name = "CREATED_AT", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "DONE_AT")
     private LocalDateTime doneAt;
 
+    @Column(name = "DUE_AT")
     private LocalDateTime dueAt;
 
     public enum Status {

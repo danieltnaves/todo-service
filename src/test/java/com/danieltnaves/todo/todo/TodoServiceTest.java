@@ -2,6 +2,7 @@ package com.danieltnaves.todo.todo;
 
 import com.danieltnaves.todo.todo.api.*;
 import com.danieltnaves.todo.todo.domain.Todo;
+import com.danieltnaves.todo.todo.event.TodoEventPublisherService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -15,9 +16,8 @@ import java.util.Optional;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.*;
 
 class TodoServiceTest {
 
@@ -29,11 +29,15 @@ class TodoServiceTest {
 
     TodoService todoService;
 
+    TodoEventPublisherService todoEventPublisherService;
+
     @BeforeEach
     void setUp() {
         todoRepository = mock(TodoRepository.class);
-        todoService = new TodoService(todoRepository);
+        todoEventPublisherService = mock(TodoEventPublisherService.class);
+        todoService = new TodoService(todoRepository, todoEventPublisherService);
     }
+
     @Test
     void testTodoAddition() {
         LocalDateTime currentDate = LocalDateTime.now();

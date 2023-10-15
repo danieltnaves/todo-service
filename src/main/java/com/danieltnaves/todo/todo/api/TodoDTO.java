@@ -7,7 +7,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record TodoDTO(Long id, String description, Status status, LocalDateTime cratedAt, LocalDateTime updatedAt, LocalDateTime dueAt) {
+public record TodoDTO(Long id, String description, Status status, LocalDateTime createdAt, LocalDateTime doneAt, LocalDateTime dueAt) {
 
     public enum Status {
         NOT_DONE, DONE, PAST_DUE;
@@ -27,7 +27,7 @@ public record TodoDTO(Long id, String description, Status status, LocalDateTime 
     }
 
     public static Todo fromTodoDTOToTodo(TodoDTO todoDTO) {
-        return new Todo(todoDTO.id(), todoDTO.description, Todo.Status.fromString(todoDTO.status.name()), todoDTO.cratedAt(), todoDTO.updatedAt(), todoDTO.dueAt());
+        return new Todo(todoDTO.id(), todoDTO.description, Todo.Status.fromString(todoDTO.status.name()), todoDTO.createdAt(), todoDTO.doneAt(), todoDTO.dueAt());
     }
 }
 

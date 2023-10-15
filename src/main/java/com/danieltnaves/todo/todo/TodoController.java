@@ -32,7 +32,7 @@ public class TodoController {
         return ResponseEntity.ok().body(todoService.updateTodo(id, todoDTO));
     }
 
-    @GetMapping(path = "todo", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "todo", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     public ResponseEntity<List<TodoDTO>> getItems(@RequestParam(name = "status", required = false) TodoDTO.Status status,
                                                   @RequestParam(name = "page") Integer page,
@@ -40,7 +40,7 @@ public class TodoController {
         return ResponseEntity.ok().body(todoService.getTodosByFilter(status, page, size));
     }
 
-    @GetMapping(path = "todo/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "todo/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     public ResponseEntity<TodoDTO> getItem(@PathVariable Long id) {
         return ResponseEntity.ok().body(todoService.getTodoById(id));
