@@ -54,7 +54,7 @@ public class TodoService {
     }
 
     public List<TodoDTO> getTodosByFilter(boolean onlyPastDueItems, Integer page, Integer size) {
-        return onlyPastDueItems ? findAllPastDueItem(page, size) : fiendAllItems(page, size);
+        return onlyPastDueItems ? findAllNotDoneItems(page, size) : fiendAllItems(page, size);
     }
 
     private List<TodoDTO> fiendAllItems(Integer page, Integer size) {
@@ -65,8 +65,8 @@ public class TodoService {
                 .toList();
     }
 
-    private List<TodoDTO> findAllPastDueItem(Integer page, Integer size) {
-        return todoRepository.findAllPastDueItems(PageRequest.of(page, size))
+    private List<TodoDTO> findAllNotDoneItems(Integer page, Integer size) {
+        return todoRepository.findAllByStatus(Todo.Status.NOT_DONE, PageRequest.of(page, size))
                 .stream()
                 .map(this::updatePastDueItemStatus)
                 .map(TodoDTO::fromTodoToTodoDTO)

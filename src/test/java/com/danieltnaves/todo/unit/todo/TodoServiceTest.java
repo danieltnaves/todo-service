@@ -258,7 +258,7 @@ class TodoServiceTest {
                 .build();
 
         Page<Todo> todoPage = new PageImpl<>(List.of(notNodeTodo, notNodeTodo2), PageRequest.of(0, 5), 2);
-        when(todoRepository.findAllPastDueItems(PageRequest.of(0, 5))).thenReturn(todoPage);
+        when(todoRepository.findAllByStatus(Todo.Status.NOT_DONE, PageRequest.of(0, 5))).thenReturn(todoPage);
 
         assertThat(todoService.getTodosByFilter(true, 0, 5), hasSize(2));
     }

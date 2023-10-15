@@ -11,8 +11,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface TodoRepository extends CrudRepository<Todo, Long>, PagingAndSortingRepository<Todo, Long> {
 
-    @Query("SELECT t FROM Todo t WHERE t.dueAt IS NOT NULL AND t.dueAt <= CURRENT_DATE")
-    Page<Todo> findAllPastDueItems(Pageable pageable);
+    @Query("SELECT t FROM Todo t WHERE t.status = :status")
+    Page<Todo> findAllByStatus(@Param("status") Todo.Status status, Pageable pageable);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Todo t SET t.status = :status WHERE t.id = :id")

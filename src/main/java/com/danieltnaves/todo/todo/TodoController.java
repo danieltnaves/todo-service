@@ -35,7 +35,7 @@ public class TodoController {
 
     @GetMapping(path = "todo", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
-    public ResponseEntity<List<TodoDTO>> getItems(@RequestParam(name = "onlyPastDueItems", required = false) boolean onlyPastDueItems,
+    public ResponseEntity<List<TodoDTO>> getItems(@RequestParam(name = "onlyNotDone", required = false) boolean onlyPastDueItems,
                                                   @RequestParam(name = "page") Integer page,
                                                   @RequestParam(name = "size") Integer size) {
         return ResponseEntity.ok().body(todoService.getTodosByFilter(onlyPastDueItems, page, size));

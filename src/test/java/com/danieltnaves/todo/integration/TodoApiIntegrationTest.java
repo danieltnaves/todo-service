@@ -129,13 +129,13 @@ class TodoApiIntegrationTest {
 
 		IntStream.rangeClosed(1, 2).forEach(i -> restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), i), PATCH, getRequestEntity(pastDueTodo), TodoDTO.class));
 
-		ResponseEntity<TodoDTO[]> allPastDuoTodoItems = restTemplate.getForEntity(String.format("%s?onlyPastDueItems=true&page=0&size=10", getTodoEndpoint()), TodoDTO[].class);
+		ResponseEntity<TodoDTO[]> allPastDuoTodoItems = restTemplate.getForEntity(String.format("%s?onlyNotDone=true&page=0&size=10", getTodoEndpoint()), TodoDTO[].class);
 		assertThat(allPastDuoTodoItems.getBody(), is(notNullValue()));
 
 		List<TodoDTO> todoDTOS = Arrays.stream(allPastDuoTodoItems.getBody()).toList();
 
 		assertThat(allPastDuoTodoItems.getStatusCode(), is(OK));
-		assertThat(todoDTOS, hasSize(2));
+		assertThat(todoDTOS, hasSize(3));
 	}
 
 	@Test
