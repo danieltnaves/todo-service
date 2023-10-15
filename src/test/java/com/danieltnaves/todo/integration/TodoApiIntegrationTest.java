@@ -275,6 +275,23 @@ class TodoApiIntegrationTest {
 		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class));
 	}
 
+	@Test
+	void testChangeStatusToPastDueWithoutSettingTheDueAtDate() {
+		TodoDTO todoDTO = TodoDTO.builder()
+				.description("New Todo Item")
+				.build();
+
+		ResponseEntity<TodoDTO> response = restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class);
+		TodoDTO todo = response.getBody();
+		assertThat(todo, is(notNullValue()));
+
+		TodoDTO patchedPastDueTodo = TodoDTO.builder()
+				.status(Status.PAST_DUE)
+				.build();
+
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class));
+	}
+
 	private static HttpEntity<TodoDTO> getRequestEntity(TodoDTO todoDTO) {
 		return new HttpEntity<>(todoDTO, getHttpHeaders());
 	}
