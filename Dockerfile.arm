@@ -1,10 +1,10 @@
-FROM gradle:8.3-jdk17 AS build
+FROM arm64v8/gradle:8.3-jdk17 AS build
 WORKDIR /app
 COPY build.gradle settings.gradle /app/
 COPY src /app/src
 RUN gradle build
 
-FROM openjdk:17-alpine
+FROM amazoncorretto:17-alpine3.18-jdk
 WORKDIR /app
 COPY --from=build /app/build/libs/todo-service.jar app.jar
 EXPOSE 8080
