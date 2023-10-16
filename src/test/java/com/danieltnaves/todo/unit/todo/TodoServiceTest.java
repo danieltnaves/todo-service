@@ -1,28 +1,37 @@
 package com.danieltnaves.todo.unit.todo;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.danieltnaves.todo.todo.TodoRepository;
 import com.danieltnaves.todo.todo.TodoService;
-import com.danieltnaves.todo.todo.api.*;
+import com.danieltnaves.todo.todo.api.InvalidInputException;
+import com.danieltnaves.todo.todo.api.TodoDTO;
+import com.danieltnaves.todo.todo.api.TodoItemNotFoundException;
+import com.danieltnaves.todo.todo.api.UpdateDoneTodoItemException;
+import com.danieltnaves.todo.todo.api.UpdatePastDueTodoItemException;
 import com.danieltnaves.todo.todo.domain.Todo;
 import com.danieltnaves.todo.todo.event.TodoEventPublisherService;
 import com.danieltnaves.todo.todo.rules.PastDueUpdateWithFutureDateRuleUpdate;
 import com.danieltnaves.todo.todo.rules.UpdateDoneUpdateTodoItemRule;
 import com.danieltnaves.todo.todo.rules.UpdatePastDueTodoItemRule;
+import com.danieltnaves.todo.todo.rules.UpdateTodoItemRule;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.*;
 
 class TodoServiceTest {
 
@@ -40,7 +49,8 @@ class TodoServiceTest {
     void setUp() {
         todoRepository = mock(TodoRepository.class);
         todoEventPublisherService = mock(TodoEventPublisherService.class);
-        todoService = new TodoService(todoRepository, todoEventPublisherService, List.of(new PastDueUpdateWithFutureDateRuleUpdate(), new UpdatePastDueTodoItemRule(), new UpdateDoneUpdateTodoItemRule()));
+        List<UpdateTodoItemRule> updateTodoItemRules = List.of(new PastDueUpdateWithFutureDateRuleUpdate(), new UpdatePastDueTodoItemRule(), new UpdateDoneUpdateTodoItemRule());
+        todoService = new TodoService(todoRepository, todoEventPublisherService, updateTodoItemRules);
     }
 
     @Test

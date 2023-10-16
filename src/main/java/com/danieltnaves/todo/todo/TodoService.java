@@ -1,18 +1,19 @@
 package com.danieltnaves.todo.todo;
 
-import com.danieltnaves.todo.todo.api.*;
+import com.danieltnaves.todo.todo.api.InvalidInputException;
+import com.danieltnaves.todo.todo.api.TodoDTO;
 import com.danieltnaves.todo.todo.api.TodoDTO.Status;
+import com.danieltnaves.todo.todo.api.TodoItemNotFoundException;
 import com.danieltnaves.todo.todo.domain.Todo;
 import com.danieltnaves.todo.todo.event.TodoEventPublisherService;
 import com.danieltnaves.todo.todo.rules.UpdateTodoItemRule;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @Slf4j

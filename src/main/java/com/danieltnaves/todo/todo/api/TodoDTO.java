@@ -2,9 +2,8 @@ package com.danieltnaves.todo.todo.api;
 
 
 import com.danieltnaves.todo.todo.domain.Todo;
-import lombok.Builder;
-
 import java.time.LocalDateTime;
+import lombok.Builder;
 
 @Builder
 public record TodoDTO(Long id, String description, Status status, LocalDateTime createdAt, LocalDateTime doneAt, LocalDateTime dueAt) {

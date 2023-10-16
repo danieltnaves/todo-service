@@ -1,27 +1,31 @@
 package com.danieltnaves.todo.integration;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.springframework.http.HttpMethod.PATCH;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+
 import com.danieltnaves.todo.todo.TodoRepository;
 import com.danieltnaves.todo.todo.api.TodoDTO;
-import com.danieltnaves.todo.todo.api.TodoDTO.Status;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.IntStream;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.springframework.http.HttpMethod.*;
-import static org.springframework.http.HttpStatus.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class TodoApiIntegrationTest {
@@ -52,7 +56,7 @@ class TodoApiIntegrationTest {
 		assertThat(todo, is(notNullValue()));
 		assertThat(response.getStatusCode(), is(CREATED));
 		assertThat(todo.description(), is("New Todo Item"));
-		assertThat(todo.status(), is(Status.NOT_DONE));
+		assertThat(todo.status(), is(TodoDTO.Status.NOT_DONE));
 		assertThat(todo.createdAt(), lessThan(LocalDateTime.now()));
 	}
 
@@ -88,14 +92,14 @@ class TodoApiIntegrationTest {
 		assertThat(todo, is(notNullValue()));
 
 		TodoDTO todoMarkedAsDone = TodoDTO.builder()
-				.status(Status.DONE)
+				.status(TodoDTO.Status.DONE)
 				.build();
 		ResponseEntity<TodoDTO> response = restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(todoMarkedAsDone), TodoDTO.class);
 		TodoDTO doneTodo = response.getBody();
 
 		assertThat(doneTodo, is(notNullValue()));
 		assertThat(response.getStatusCode(), is(OK));
-		assertThat(doneTodo.status(), is(Status.DONE));
+		assertThat(doneTodo.status(), is(TodoDTO.Status.DONE));
 	}
 
 	@Test
@@ -123,7 +127,7 @@ class TodoApiIntegrationTest {
 		IntStream.rangeClosed(1, 5).forEach(i -> restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class));
 
 		TodoDTO pastDueTodo = TodoDTO.builder()
-				.status(Status.PAST_DUE)
+				.status(TodoDTO.Status.PAST_DUE)
 				.dueAt(LocalDateTime.now().minusDays(2))
 				.build();
 
@@ -154,7 +158,7 @@ class TodoApiIntegrationTest {
 		assertThat(createdTodo, is(notNullValue()));
 		assertThat(createdTodoResponse.getStatusCode(), is(OK));
 		assertThat(todo.description(), is("New Todo Item"));
-		assertThat(todo.status(), is(Status.NOT_DONE));
+		assertThat(todo.status(), is(TodoDTO.Status.NOT_DONE));
 		assertThat(todo.createdAt(), lessThan(LocalDateTime.now()));
 	}
 
@@ -169,7 +173,7 @@ class TodoApiIntegrationTest {
 		assertThat(todo, is(notNullValue()));
 
 		TodoDTO patchedPastDueTodo = TodoDTO.builder()
-				.status(Status.PAST_DUE)
+				.status(TodoDTO.Status.PAST_DUE)
 				.dueAt(LocalDateTime.now().minusDays(2))
 				.build();
 		restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class);
@@ -179,7 +183,7 @@ class TodoApiIntegrationTest {
 
 		assertThat(pastDueTodo, is(notNullValue()));
 		assertThat(pastDueTodoResponse.getStatusCode(), is(OK));
-		assertThat(pastDueTodo.status(), is(Status.PAST_DUE));
+		assertThat(pastDueTodo.status(), is(TodoDTO.Status.PAST_DUE));
 	}
 
 	@Test
@@ -193,7 +197,7 @@ class TodoApiIntegrationTest {
 		assertThat(todo, is(notNullValue()));
 
 		TodoDTO patchedPastDueTodo = TodoDTO.builder()
-				.status(Status.PAST_DUE)
+				.status(TodoDTO.Status.PAST_DUE)
 				.dueAt(LocalDateTime.now().minusDays(2))
 				.build();
 		restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class);
@@ -202,7 +206,8 @@ class TodoApiIntegrationTest {
 				.dueAt(LocalDateTime.now())
 				.build();
 
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(newPatchedPastDueTodo), Object.class));
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d",
+				getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(newPatchedPastDueTodo), Object.class));
 	}
 
 	@Test
@@ -229,7 +234,7 @@ class TodoApiIntegrationTest {
 		assertThat(todo, is(notNullValue()));
 
 		TodoDTO patchedPastDueTodo = TodoDTO.builder()
-				.status(Status.DONE)
+				.status(TodoDTO.Status.DONE)
 				.build();
 		restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class);
 
@@ -237,7 +242,8 @@ class TodoApiIntegrationTest {
 				.description("New Description")
 				.build();
 
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(newPatchedPastDueTodo), Object.class));
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d",
+				getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(newPatchedPastDueTodo), Object.class));
 	}
 
 	@Test
@@ -251,11 +257,12 @@ class TodoApiIntegrationTest {
 		assertThat(todo, is(notNullValue()));
 
 		TodoDTO patchedPastDueTodo = TodoDTO.builder()
-				.status(Status.PAST_DUE)
+				.status(TodoDTO.Status.PAST_DUE)
 				.dueAt(LocalDateTime.now().plusDays(2))
 				.build();
 
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class));
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d",
+				getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class));
 	}
 
 	@Test
@@ -272,7 +279,8 @@ class TodoApiIntegrationTest {
 				.dueAt(LocalDateTime.now().minusDays(2))
 				.build();
 
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class));
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d",
+				getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class));
 	}
 
 	@Test
@@ -286,10 +294,11 @@ class TodoApiIntegrationTest {
 		assertThat(todo, is(notNullValue()));
 
 		TodoDTO patchedPastDueTodo = TodoDTO.builder()
-				.status(Status.PAST_DUE)
+				.status(TodoDTO.Status.PAST_DUE)
 				.build();
 
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class));
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d",
+				getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class));
 	}
 
 	private static HttpEntity<TodoDTO> getRequestEntity(TodoDTO todoDTO) {

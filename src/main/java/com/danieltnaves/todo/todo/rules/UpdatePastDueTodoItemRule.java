@@ -3,10 +3,9 @@ package com.danieltnaves.todo.todo.rules;
 import com.danieltnaves.todo.todo.api.TodoDTO;
 import com.danieltnaves.todo.todo.api.UpdatePastDueTodoItemException;
 import com.danieltnaves.todo.todo.domain.Todo;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
-
-import java.time.LocalDateTime;
 
 @Component
 public class UpdatePastDueTodoItemRule implements UpdateTodoItemRule {
