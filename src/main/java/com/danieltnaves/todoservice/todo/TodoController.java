@@ -28,7 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @OpenAPIDefinition(info = @Info(
         title = "Todo Service API",
-        description = "This REST API provides features to add, update and list Todo items.",
+        description = """
+                This REST API provides features to add, update and list Todo items.
+                This OpenApi documentation also provides a series of request and response
+                examples. Switch between dropdown values to change the payloads that can be
+                sent for the PATCH operation.
+                """,
         contact = @Contact(name = "Daniel Naves", url = "https://github.com/danieltnaves", email = "daniel.naves@outlook.com")
 ))
 @RestController
