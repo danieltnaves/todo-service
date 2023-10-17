@@ -5,6 +5,7 @@ import com.danieltnaves.todoservice.todo.domain.Todo;
 import com.danieltnaves.todoservice.todo.errors.UpdateDoneTodoItemException;
 import org.springframework.stereotype.Component;
 
+
 @Component
 public class UpdateDoneUpdateTodoItemRule extends UpdateTodoItemRuleTemplate {
 

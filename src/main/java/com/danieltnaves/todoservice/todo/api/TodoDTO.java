@@ -2,10 +2,12 @@ package com.danieltnaves.todoservice.todo.api;
 
 
 import com.danieltnaves.todoservice.todo.domain.Todo;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
 import lombok.Builder;
 
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record TodoDTO(Long id, String description, Status status, LocalDateTime createdAt, LocalDateTime doneAt, LocalDateTime dueAt) {
 
     public enum Status {
