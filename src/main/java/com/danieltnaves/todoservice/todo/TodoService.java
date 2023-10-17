@@ -75,6 +75,7 @@ public class TodoService {
 
     private Todo updatePastDueItemStatus(Todo todo) {
         if (isUpdatablePastDueItem(todo)) {
+            todoEventPublisherService.publishUpdatePastDueEvent(todo);
             todo.setStatus(Todo.Status.PAST_DUE);
         }
         return todo;
@@ -103,10 +104,6 @@ public class TodoService {
     }
 
     private boolean isUpdatablePastDueItem(Todo todo) {
-        if (ObjectUtils.isNotEmpty(todo.getDueAt()) && LocalDateTime.now().isAfter(todo.getDueAt()) && Todo.Status.NOT_DONE.equals(todo.getStatus())) {
-            todoEventPublisherService.publishUpdatePastDueEvent(todo);
-            return true;
-        }
-        return false;
+        return ObjectUtils.isNotEmpty(todo.getDueAt()) && LocalDateTime.now().isAfter(todo.getDueAt()) && Todo.Status.NOT_DONE.equals(todo.getStatus());
     }
 }
