@@ -1,9 +1,11 @@
 package com.danieltnaves.todoservice.todo.errors;
 
-public class TodoItemNotFoundException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class TodoItemNotFoundException extends GenericHttpException {
 
     public TodoItemNotFoundException(String message) {
-        super(message);
+        super(message, HttpStatus.NOT_FOUND);
     }
 
 }

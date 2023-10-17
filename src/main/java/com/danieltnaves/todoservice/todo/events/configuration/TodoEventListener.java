@@ -1,7 +1,8 @@
-package com.danieltnaves.todoservice.todo.events;
+package com.danieltnaves.todoservice.todo.events.configuration;
 
 import com.danieltnaves.todoservice.todo.TodoService;
 import com.danieltnaves.todoservice.todo.domain.Todo;
+import com.danieltnaves.todoservice.todo.events.UpdatePastDueEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;

@@ -1,4 +1,4 @@
-package com.danieltnaves.todoservice.todo.events;
+package com.danieltnaves.todoservice.todo.events.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,7 +7,7 @@ import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 @Configuration
-public class AsynchronousEventConfig {
+public class AsynchronousEventMulticaster {
 
     @Bean(name = "applicationEventMulticaster")
     public ApplicationEventMulticaster simpleApplicationEventMulticaster() {

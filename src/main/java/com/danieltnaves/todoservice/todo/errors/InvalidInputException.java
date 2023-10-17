@@ -1,9 +1,11 @@
 package com.danieltnaves.todoservice.todo.errors;
 
-public class InvalidInputException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class InvalidInputException extends GenericHttpException {
 
     public InvalidInputException(String message) {
-        super(message);
+        super(message, HttpStatus.BAD_REQUEST);
     }
 
 }

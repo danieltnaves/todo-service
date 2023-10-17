@@ -1,9 +1,11 @@
 package com.danieltnaves.todoservice.todo.errors;
 
-public class UpdatePastDueTodoItemWithFutureDateException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class UpdatePastDueTodoItemWithFutureDateException extends GenericHttpException {
 
     public UpdatePastDueTodoItemWithFutureDateException(String message) {
-        super(message);
+        super(message, HttpStatus.BAD_REQUEST);
     }
 
 }

@@ -18,7 +18,7 @@ import com.danieltnaves.todoservice.todo.domain.Todo;
 import com.danieltnaves.todoservice.todo.errors.InvalidInputException;
 import com.danieltnaves.todoservice.todo.errors.TodoItemNotFoundException;
 import com.danieltnaves.todoservice.todo.errors.UpdateDoneTodoItemException;
-import com.danieltnaves.todoservice.todo.errors.UpdatePastDueTodoItemException;
+import com.danieltnaves.todoservice.todo.errors.UpdatePastDueException;
 import com.danieltnaves.todoservice.todo.events.TodoEventPublisherService;
 import com.danieltnaves.todoservice.todo.rules.PastDueUpdateWithFutureDateRuleUpdate;
 import com.danieltnaves.todoservice.todo.rules.UpdateDoneUpdateTodoItemRule;
@@ -129,7 +129,7 @@ class TodoServiceTest {
         when(todoRepository.findById(1L)).thenReturn(Optional.of(todo));
         TodoDTO todoDTO = TodoDTO.builder().description(GO_TO_THE_MALL).build();
 
-        assertThrows(UpdatePastDueTodoItemException.class, () -> todoService.updateTodo(1L, todoDTO));
+        assertThrows(UpdatePastDueException.class, () -> todoService.updateTodo(1L, todoDTO));
     }
 
     @Test

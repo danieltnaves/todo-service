@@ -2,9 +2,9 @@ package com.danieltnaves.todoservice.todo.errors;
 
 import org.springframework.http.HttpStatus;
 
-public class UpdateDoneTodoItemException extends GenericHttpException {
+public class UpdatePastDueException extends GenericHttpException {
 
-    public UpdateDoneTodoItemException(String message) {
+    public UpdatePastDueException(String message) {
         super(message, HttpStatus.BAD_REQUEST);
     }
 
