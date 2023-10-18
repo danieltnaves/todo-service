@@ -1,6 +1,7 @@
 package com.danieltnaves.todoservice.integration;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
@@ -15,13 +16,13 @@ import com.danieltnaves.todoservice.todo.api.TodoDTO;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +30,13 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@EnableAspectJAutoProxy
 class TodoApiIntegrationTest {
+
+	public static final String NEW_TODO_ITEM = "New Todo Item";
+
+	public static final String NEW_TODO_ITEM_DESCRIPTION = "New Todo Item description";
+
+	public static final String NEW_DESCRIPTION = "New Description";
 
 	@LocalServerPort
 	private int port;
@@ -48,168 +54,77 @@ class TodoApiIntegrationTest {
 
 	@Test
 	void testAddItem() {
-		TodoDTO todoDTO = TodoDTO.builder()
-				.description("New Todo Item")
-				.build();
-
-		ResponseEntity<TodoDTO> response = restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class);
-		TodoDTO todo = response.getBody();
-
-		assertThat(todo, is(notNullValue()));
+		ResponseEntity<TodoDTO> response = createNewTodoItem(getNewTodoItem());
+		assertThat(response.getBody(), is(notNullValue()));
 		assertThat(response.getStatusCode(), is(CREATED));
-		assertThat(todo.description(), is("New Todo Item"));
-		assertThat(todo.status(), is(TodoDTO.Status.NOT_DONE));
-		assertThat(todo.createdAt(), lessThan(LocalDateTime.now()));
+		assertThat(response.getBody().description(), is(NEW_TODO_ITEM));
+		assertThat(response.getBody().status(), is(TodoDTO.Status.NOT_DONE));
+		assertThat(response.getBody().createdAt(), lessThan(LocalDateTime.now()));
 	}
 
 	@Test
 	void testChangeDescription() {
-		TodoDTO todoDTO = TodoDTO.builder()
-				.description("New Todo Item")
-				.build();
-
-		ResponseEntity<TodoDTO> responseCreatedTodo = restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class);
-		TodoDTO todo = responseCreatedTodo.getBody();
-		assertThat(todo, is(notNullValue()));
-
-		TodoDTO todoWithNewDescription = TodoDTO.builder()
-				.description("New Todo Item description")
-				.build();
-		ResponseEntity<TodoDTO> response = restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(todoWithNewDescription), TodoDTO.class);
-		TodoDTO changedTodo = response.getBody();
-
-		assertThat(changedTodo, is(notNullValue()));
+		TodoDTO todo = createNewTodoItem(getNewTodoItem()).getBody();
+		ResponseEntity<TodoDTO> response = updateTodoItem(Objects.requireNonNull(todo), getTodoItemWithNewDescription());
+		assertThat(response.getBody(), is(notNullValue()));
 		assertThat(response.getStatusCode(), is(OK));
-		assertThat(changedTodo.description(), is("New Todo Item description"));
+		assertThat(response.getBody().description(), is(NEW_TODO_ITEM_DESCRIPTION));
 	}
+
 
 	@Test
 	void testMarkAnItemAsDone() {
-		TodoDTO todoDTO = TodoDTO.builder()
-				.description("New Todo Item")
-				.build();
-
-		ResponseEntity<TodoDTO> responseCreatedTodo = restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class);
-		TodoDTO todo = responseCreatedTodo.getBody();
-		assertThat(todo, is(notNullValue()));
-
-		TodoDTO todoMarkedAsDone = TodoDTO.builder()
-				.status(TodoDTO.Status.DONE)
-				.build();
-		ResponseEntity<TodoDTO> response = restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(todoMarkedAsDone), TodoDTO.class);
-		TodoDTO doneTodo = response.getBody();
-
-		assertThat(doneTodo, is(notNullValue()));
+		ResponseEntity<TodoDTO> response = updateTodoItem(Objects.requireNonNull(createNewTodoItem(getNewTodoItem()).getBody()), getTodoItemMarkedAsDone());
+		assertThat(response.getBody(), is(notNullValue()));
 		assertThat(response.getStatusCode(), is(OK));
-		assertThat(doneTodo.status(), is(TodoDTO.Status.DONE));
+		assertThat(response.getBody().status(), is(TodoDTO.Status.DONE));
 	}
 
 	@Test
 	void testGetAllItems() {
-		TodoDTO todoDTO = TodoDTO.builder()
-				.description("New Todo Item")
-				.build();
-
-		IntStream.rangeClosed(1, 5).forEach(i -> restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class));
-		ResponseEntity<TodoDTO[]> allTodoItems = restTemplate.getForEntity(String.format("%s?page=0&size=10", getTodoEndpoint()), TodoDTO[].class);
+		IntStream.rangeClosed(1, 5).forEach(i -> createNewTodoItem(getNewTodoItem()));
+		ResponseEntity<TodoDTO[]> allTodoItems = getItemsWithPagination(false, 0, 10);
 		assertThat(allTodoItems.getBody(), is(notNullValue()));
-
-		List<TodoDTO> todoDTOS = Arrays.stream(allTodoItems.getBody()).toList();
-
 		assertThat(allTodoItems.getStatusCode(), is(OK));
-		assertThat(todoDTOS, hasSize(5));
+		assertThat(Arrays.stream(allTodoItems.getBody()).toList(), hasSize(5));
 	}
 
 	@Test
 	void testGetPastDueItems() {
-		TodoDTO todoDTO = TodoDTO.builder()
-				.description("New Todo Item")
-				.build();
-
-		IntStream.rangeClosed(1, 5).forEach(i -> restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class));
-
-		TodoDTO pastDueTodo = TodoDTO.builder()
-				.status(TodoDTO.Status.PAST_DUE)
-				.dueAt(LocalDateTime.now().minusDays(2))
-				.build();
-
-		IntStream.rangeClosed(1, 2).forEach(i -> restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), i), PATCH, getRequestEntity(pastDueTodo), TodoDTO.class));
-
-		ResponseEntity<TodoDTO[]> allPastDuoTodoItems = restTemplate.getForEntity(String.format("%s?onlyNotDone=true&page=0&size=10", getTodoEndpoint()), TodoDTO[].class);
-		assertThat(allPastDuoTodoItems.getBody(), is(notNullValue()));
-
-		List<TodoDTO> todoDTOS = Arrays.stream(allPastDuoTodoItems.getBody()).toList();
-
+		IntStream.rangeClosed(1, 5).forEach(i -> createNewTodoItem(getNewTodoItem()));
+		IntStream.rangeClosed(1, 2).forEach(this::updateItemToPastDue);
+		ResponseEntity<TodoDTO[]> allPastDuoTodoItems = getItemsWithPagination(true, 0, 10);;
 		assertThat(allPastDuoTodoItems.getStatusCode(), is(OK));
-		assertThat(todoDTOS, hasSize(3));
+		assertThat(Arrays.stream(Objects.requireNonNull(allPastDuoTodoItems.getBody())).toList(), hasSize(3));
 	}
 
 	@Test
 	void testGetTodoItem() {
-		TodoDTO todoDTO = TodoDTO.builder()
-				.description("New Todo Item")
-				.build();
-
-		ResponseEntity<TodoDTO> response = restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class);
-		TodoDTO todo = response.getBody();
-		assertThat(todo, is(notNullValue()));
-
-		ResponseEntity<TodoDTO> createdTodoResponse = restTemplate.getForEntity(String.format("%s/%d", getTodoEndpoint(), todo.id()), TodoDTO.class);
-		TodoDTO createdTodo = createdTodoResponse.getBody();
-
-		assertThat(createdTodo, is(notNullValue()));
-		assertThat(createdTodoResponse.getStatusCode(), is(OK));
-		assertThat(todo.description(), is("New Todo Item"));
-		assertThat(todo.status(), is(TodoDTO.Status.NOT_DONE));
-		assertThat(todo.createdAt(), lessThan(LocalDateTime.now()));
+		ResponseEntity<TodoDTO> retrievedTodoItemResponse = retrieveTodoItem(createNewTodoItem(getNewTodoItem()).getBody());
+		TodoDTO retrievedTodoItem = retrievedTodoItemResponse.getBody();
+		assertThat(retrievedTodoItemResponse.getStatusCode(), is(OK));
+		assertThat(retrievedTodoItem, is(notNullValue()));
+		assertThat(retrievedTodoItem.description(), is(NEW_TODO_ITEM));
+		assertThat(retrievedTodoItem.status(), is(TodoDTO.Status.NOT_DONE));
+		assertThat(retrievedTodoItem.createdAt(), lessThan(LocalDateTime.now()));
 	}
 
 	@Test
 	void testAutomaticallyChangeOfStatusOfPastDueItems() {
-		TodoDTO todoDTO = TodoDTO.builder()
-				.description("New Todo Item")
-				.build();
-
-		ResponseEntity<TodoDTO> response = restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class);
-		TodoDTO todo = response.getBody();
-		assertThat(todo, is(notNullValue()));
-
-		TodoDTO patchedPastDueTodo = TodoDTO.builder()
-				.status(TodoDTO.Status.PAST_DUE)
-				.dueAt(LocalDateTime.now().minusDays(2))
-				.build();
-		restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class);
-
-		ResponseEntity<TodoDTO> pastDueTodoResponse = restTemplate.getForEntity(String.format("%s/%d", getTodoEndpoint(), todo.id()), TodoDTO.class);
-		TodoDTO pastDueTodo = pastDueTodoResponse.getBody();
-
+		ResponseEntity<TodoDTO> newTodoItemResponse = createNewTodoItem(getNewTodoItem());
+		updateTodoItem(Objects.requireNonNull(newTodoItemResponse.getBody()), getPastDueTodoItem());
+		ResponseEntity<TodoDTO> pastDueTodoItemResponse = retrieveTodoItem(Objects.requireNonNull(newTodoItemResponse).getBody());
+		TodoDTO pastDueTodo = pastDueTodoItemResponse.getBody();
+		assertThat(pastDueTodoItemResponse.getStatusCode(), is(OK));
 		assertThat(pastDueTodo, is(notNullValue()));
-		assertThat(pastDueTodoResponse.getStatusCode(), is(OK));
 		assertThat(pastDueTodo.status(), is(TodoDTO.Status.PAST_DUE));
 	}
 
 	@Test
 	void testChangePastDueItem() {
-		TodoDTO todoDTO = TodoDTO.builder()
-				.description("New Todo Item")
-				.build();
-
-		ResponseEntity<TodoDTO> response = restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class);
-		TodoDTO todo = response.getBody();
-		assertThat(todo, is(notNullValue()));
-
-		TodoDTO patchedPastDueTodo = TodoDTO.builder()
-				.status(TodoDTO.Status.PAST_DUE)
-				.dueAt(LocalDateTime.now().minusDays(2))
-				.build();
-		restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class);
-
-		TodoDTO newPatchedPastDueTodo = TodoDTO.builder()
-				.dueAt(LocalDateTime.now())
-				.build();
-
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d",
-				getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(newPatchedPastDueTodo), Object.class));
+		TodoDTO todo = createNewTodoItem(getNewTodoItem()).getBody();
+		updateTodoItem(Objects.requireNonNull(todo), getPastDueTodoItem());
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> updateTodoItem(todo, getNewPatchedPastDueTodoItem()));
 	}
 
 	@Test
@@ -219,88 +134,111 @@ class TodoApiIntegrationTest {
 
 	@Test
 	void testAddTodoItemWithoutDescription() {
-		TodoDTO todoDTO = TodoDTO.builder()
-				.description(null)
-				.build();
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class));
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> createNewTodoItem(getTodoItemWithNullDescription()));
 	}
 
 	@Test
 	void testUpdateDoneItem() {
-		TodoDTO todoDTO = TodoDTO.builder()
-				.description("New Todo Item")
-				.build();
-
-		ResponseEntity<TodoDTO> response = restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class);
-		TodoDTO todo = response.getBody();
-		assertThat(todo, is(notNullValue()));
-
-		TodoDTO patchedPastDueTodo = TodoDTO.builder()
-				.status(TodoDTO.Status.DONE)
-				.build();
-		restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class);
-
-		TodoDTO newPatchedPastDueTodo = TodoDTO.builder()
-				.description("New Description")
-				.build();
-
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d",
-				getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(newPatchedPastDueTodo), Object.class));
+		TodoDTO todo = createNewTodoItem(getNewTodoItem()).getBody();
+		updateTodoItem(Objects.requireNonNull(todo), getTodoItemMarkedAsDone());
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> updateTodoItem(todo, getNewTodoItemWithPatchedDescription()));
 	}
 
 	@Test
 	void testUpdatePastDueItemWithFutureDate() {
-		TodoDTO todoDTO = TodoDTO.builder()
-				.description("New Todo Item")
-				.build();
-
-		ResponseEntity<TodoDTO> response = restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class);
-		TodoDTO todo = response.getBody();
-		assertThat(todo, is(notNullValue()));
-
-		TodoDTO patchedPastDueTodo = TodoDTO.builder()
-				.status(TodoDTO.Status.PAST_DUE)
-				.dueAt(LocalDateTime.now().plusDays(2))
-				.build();
-
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d",
-				getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class));
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> updateTodoItem(Objects.requireNonNull(createNewTodoItem(getNewTodoItem()).getBody()), getTodoItemWithPastDueStatusAndFutureDate()));
 	}
 
 	@Test
 	void testUpdatePastDueStatusChange() {
-		TodoDTO todoDTO = TodoDTO.builder()
-				.description("New Todo Item")
-				.build();
-
-		ResponseEntity<TodoDTO> response = restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class);
-		TodoDTO todo = response.getBody();
-		assertThat(todo, is(notNullValue()));
-
-		TodoDTO patchedPastDueTodo = TodoDTO.builder()
-				.dueAt(LocalDateTime.now().minusDays(2))
-				.build();
-
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d",
-				getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class));
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> updateTodoItem(Objects.requireNonNull(createNewTodoItem(getNewTodoItem()).getBody()), getPatchedPastDueTodoItem()));
 	}
 
 	@Test
 	void testChangeStatusToPastDueWithoutSettingTheDueAtDate() {
-		TodoDTO todoDTO = TodoDTO.builder()
-				.description("New Todo Item")
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> updateTodoItem(Objects.requireNonNull(createNewTodoItem(getNewTodoItem()).getBody()), getTodoItemWithPastDueStatus()));
+	}
+
+	private ResponseEntity<TodoDTO> createNewTodoItem(TodoDTO todoDTO) {
+		return restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class);
+	}
+
+	private static TodoDTO getNewTodoItem() {
+		return TodoDTO.builder()
+				.description(NEW_TODO_ITEM)
 				.build();
+	}
 
-		ResponseEntity<TodoDTO> response = restTemplate.postForEntity(getTodoEndpoint(), todoDTO, TodoDTO.class);
-		TodoDTO todo = response.getBody();
-		assertThat(todo, is(notNullValue()));
+	private static TodoDTO getTodoItemWithNewDescription() {
+		return TodoDTO.builder()
+				.description(NEW_TODO_ITEM_DESCRIPTION)
+				.build();
+	}
 
-		TodoDTO patchedPastDueTodo = TodoDTO.builder()
+	private ResponseEntity<TodoDTO> updateTodoItem(TodoDTO todo, TodoDTO todoDTO) {
+		return restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(todoDTO), TodoDTO.class);
+	}
+
+	private static TodoDTO getTodoItemMarkedAsDone() {
+		return TodoDTO.builder()
+				.status(TodoDTO.Status.DONE)
+				.build();
+	}
+
+	private ResponseEntity<TodoDTO[]> getItemsWithPagination(boolean onlyNotDone, int page, int size) {
+		return restTemplate.getForEntity(String.format("%s?onlyNotDone=%b&page=%d&size=%d", getTodoEndpoint(), onlyNotDone, page, size), TodoDTO[].class);
+	}
+
+	private void updateItemToPastDue(int i) {
+		restTemplate.exchange(String.format("%s/%d", getTodoEndpoint(), i), PATCH, getRequestEntity(getPastDueTodoItem()), TodoDTO.class);
+	}
+
+	private static TodoDTO getPastDueTodoItem() {
+		return TodoDTO.builder()
+				.status(TodoDTO.Status.PAST_DUE)
+				.dueAt(LocalDateTime.now().minusDays(2))
+				.build();
+	}
+
+	private ResponseEntity<TodoDTO> retrieveTodoItem(TodoDTO todo) {
+		return restTemplate.getForEntity(String.format("%s/%d", getTodoEndpoint(), Objects.requireNonNull(todo).id()), TodoDTO.class);
+	}
+
+	private static TodoDTO getNewPatchedPastDueTodoItem() {
+		return TodoDTO.builder()
+				.dueAt(LocalDateTime.now())
+				.build();
+	}
+
+	private static TodoDTO getTodoItemWithNullDescription() {
+		return TodoDTO.builder()
+				.description(null)
+				.build();
+	}
+
+	private static TodoDTO getNewTodoItemWithPatchedDescription() {
+		return TodoDTO.builder()
+				.description(NEW_DESCRIPTION)
+				.build();
+	}
+
+	private static TodoDTO getTodoItemWithPastDueStatusAndFutureDate() {
+		return TodoDTO.builder()
+				.status(TodoDTO.Status.PAST_DUE)
+				.dueAt(LocalDateTime.now().plusDays(2))
+				.build();
+	}
+
+	private static TodoDTO getPatchedPastDueTodoItem() {
+		return TodoDTO.builder()
+				.dueAt(LocalDateTime.now().minusDays(2))
+				.build();
+	}
+
+	private static TodoDTO getTodoItemWithPastDueStatus() {
+		return TodoDTO.builder()
 				.status(TodoDTO.Status.PAST_DUE)
 				.build();
-
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(String.format("%s/%d",
-				getTodoEndpoint(), todo.id()), PATCH, getRequestEntity(patchedPastDueTodo), TodoDTO.class));
 	}
 
 	private static HttpEntity<TodoDTO> getRequestEntity(TodoDTO todoDTO) {
