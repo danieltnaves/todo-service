@@ -5,6 +5,7 @@ import static com.danieltnaves.todoservice.todo.api.TodoDTO.Status;
 import com.danieltnaves.todoservice.todo.api.TodoDTO;
 import com.danieltnaves.todoservice.todo.domain.Todo;
 import com.danieltnaves.todoservice.todo.errors.UpdatePastDueException;
+import com.danieltnaves.todoservice.todo.rules.baserule.UpdateTodoItemRuleTemplate;
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;

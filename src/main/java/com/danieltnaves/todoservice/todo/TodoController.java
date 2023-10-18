@@ -85,7 +85,7 @@ public class TodoController {
     @PostMapping(path = "todo", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(CREATED)
     public ResponseEntity<TodoDTO> addItem(@RequestBody TodoDTO todoDTO) {
-        TodoDTO createdTodo = todoService.addTodo(todoDTO);
+        TodoDTO createdTodo = todoService.addTodoItem(todoDTO);
         return ResponseEntity.created(URI.create(String.format("/todo/%s", createdTodo.id()))).body(createdTodo);
     }
 
@@ -174,7 +174,7 @@ public class TodoController {
     @PatchMapping(path = "todo/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(OK)
     public ResponseEntity<TodoDTO> updateItem(@PathVariable Long id, @Valid @RequestBody TodoDTO todoDTO) {
-        return ResponseEntity.ok().body(todoService.updateTodo(id, todoDTO));
+        return ResponseEntity.ok().body(todoService.updateTodoItem(id, todoDTO));
     }
 
     @Operation(summary = "Retrieve a list of Todo items", description = """

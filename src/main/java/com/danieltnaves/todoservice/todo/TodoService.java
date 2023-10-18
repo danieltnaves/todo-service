@@ -5,7 +5,7 @@ import com.danieltnaves.todoservice.todo.domain.Todo;
 import com.danieltnaves.todoservice.todo.errors.InvalidInputException;
 import com.danieltnaves.todoservice.todo.errors.TodoItemNotFoundException;
 import com.danieltnaves.todoservice.todo.events.TodoEventPublisherService;
-import com.danieltnaves.todoservice.todo.rules.UpdateTodoItemRule;
+import com.danieltnaves.todoservice.todo.rules.baserule.UpdateTodoItemRule;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class TodoService {
     }
 
     @Transactional
-    public TodoDTO updateTodo(Long id, TodoDTO todoDTO) {
+    public TodoDTO updateTodoItem(Long id, TodoDTO todoDTO) {
         Todo todo = todoRepository.findById(id).orElseThrow(() -> new TodoItemNotFoundException(String.format(TODO_ITEM_NOT_FOUND_MESSAGE, id)));
         evaluateUpdateTodoItemRules(todoDTO, todo);
         updateTodoItem(todoDTO, todo);
@@ -87,7 +87,7 @@ public class TodoService {
                 .orElseThrow(() -> new TodoItemNotFoundException(String.format(TODO_ITEM_NOT_FOUND_MESSAGE, id))));
     }
 
-    public TodoDTO addTodo(TodoDTO todoDTO) {
+    public TodoDTO addTodoItem(TodoDTO todoDTO) {
         if (ObjectUtils.isEmpty(todoDTO) || ObjectUtils.isEmpty(todoDTO.description())) {
             throw new InvalidInputException(DESCRIPTION_NOT_PROVIDED_MESSAGE);
         }

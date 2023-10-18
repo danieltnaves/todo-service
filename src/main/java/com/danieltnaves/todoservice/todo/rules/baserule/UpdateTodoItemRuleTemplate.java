@@ -1,4 +1,4 @@
-package com.danieltnaves.todoservice.todo.rules;
+package com.danieltnaves.todoservice.todo.rules.baserule;
 
 import com.danieltnaves.todoservice.todo.api.TodoDTO;
 import com.danieltnaves.todoservice.todo.domain.Todo;

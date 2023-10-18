@@ -3,6 +3,7 @@ package com.danieltnaves.todoservice.todo.rules;
 import com.danieltnaves.todoservice.todo.api.TodoDTO;
 import com.danieltnaves.todoservice.todo.domain.Todo;
 import com.danieltnaves.todoservice.todo.errors.UpdateDoneTodoItemException;
+import com.danieltnaves.todoservice.todo.rules.baserule.UpdateTodoItemRuleTemplate;
 import org.springframework.stereotype.Component;
 
 

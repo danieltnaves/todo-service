@@ -1,7 +1,6 @@
-package com.danieltnaves.todoservice.integration;
+package com.danieltnaves.todoservice.todo.integration;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
@@ -15,7 +14,6 @@ import com.danieltnaves.todoservice.todo.TodoRepository;
 import com.danieltnaves.todoservice.todo.api.TodoDTO;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
@@ -129,7 +127,8 @@ class TodoApiIntegrationTest {
 
 	@Test
 	void testGetNonExistentTodoItemChangePastDueItem() {
-		assertThrows(HttpClientErrorException.NotFound.class, () -> restTemplate.getForEntity(String.format("%s/%d", getTodoEndpoint(), 10L), Object.class));
+		assertThrows(HttpClientErrorException.NotFound.class,
+				() -> restTemplate.getForEntity(String.format("%s/%d", getTodoEndpoint(), 10L), Object.class));
 	}
 
 	@Test
@@ -146,7 +145,8 @@ class TodoApiIntegrationTest {
 
 	@Test
 	void testUpdatePastDueItemWithFutureDate() {
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> updateTodoItem(Objects.requireNonNull(createNewTodoItem(getNewTodoItem()).getBody()), getTodoItemWithPastDueStatusAndFutureDate()));
+		assertThrows(HttpClientErrorException.BadRequest.class, () -> updateTodoItem(Objects.requireNonNull(createNewTodoItem(getNewTodoItem()).getBody()),
+				getTodoItemWithPastDueStatusAndFutureDate()));
 	}
 
 	@Test
