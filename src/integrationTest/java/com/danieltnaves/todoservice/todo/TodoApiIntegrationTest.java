@@ -90,7 +90,7 @@ class TodoApiIntegrationTest {
 	void testGetPastDueItems() {
 		IntStream.rangeClosed(1, 5).forEach(i -> createNewTodoItem(getNewTodoItem()));
 		IntStream.rangeClosed(1, 2).forEach(this::updateItemToPastDue);
-		ResponseEntity<TodoDTO[]> allPastDuoTodoItems = getItemsWithPagination(true, 0, 10);;
+		ResponseEntity<TodoDTO[]> allPastDuoTodoItems = getItemsWithPagination(true, 0, 10);
 		assertThat(allPastDuoTodoItems.getStatusCode(), is(OK));
 		assertThat(Arrays.stream(Objects.requireNonNull(allPastDuoTodoItems.getBody())).toList(), hasSize(3));
 	}
