@@ -1,3 +1,5 @@
+# Todo Service 
+
 A RESTful API to manage Todo items and their status. The API supports the following operations:
 
 * Add a new item
@@ -107,4 +109,4 @@ there is also a version for ARM platforms:
 ./build-and-run-arm.sh
 ```
 
-Similarly to the approach using Java this script will build the Docker image spin up a new container, and make it available on port 8080. 
+Similarly to the approach using Java this script will build the Docker image, spin up a new container, and make it available on port 8080. 
