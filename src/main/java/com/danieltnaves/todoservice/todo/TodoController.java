@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @OpenAPIDefinition(info = @Info(
         title = "Todo Service API",
         description = """
-                This REST API provides features to add, update and list Todo items.
+                This REST API provides features to add, update, and list Todo items.
                 This OpenApi documentation also provides a series of request and response
                 examples. Switch between dropdown values to change the payloads that can be
                 sent for the PATCH operation.
@@ -48,7 +48,7 @@ public class TodoController {
     @Operation(summary = "Add a new Todo item", description = """
             Add a new Todo item with the initial status NOT_DONE and automatically populate the createdAt.
             Only the description is required to create a new Todo item. The location to the new created
-            item is also return on the response header location
+            item is also returned on the response header location.
             """)
     @io.swagger.v3.oas.annotations.parameters.RequestBody(content = {
             @Content(examples = {
