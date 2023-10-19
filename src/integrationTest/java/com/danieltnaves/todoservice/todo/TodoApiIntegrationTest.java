@@ -1,6 +1,6 @@
-package com.danieltnaves.todoservice.todo.integration;
+package com.danieltnaves.todoservice.todo;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
@@ -10,7 +10,6 @@ import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
-import com.danieltnaves.todoservice.todo.TodoRepository;
 import com.danieltnaves.todoservice.todo.api.TodoDTO;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -122,13 +121,14 @@ class TodoApiIntegrationTest {
 	void testChangePastDueItem() {
 		TodoDTO todo = createNewTodoItem(getNewTodoItem()).getBody();
 		updateTodoItem(Objects.requireNonNull(todo), getPastDueTodoItem());
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> updateTodoItem(todo, getNewPatchedPastDueTodoItem()));
+		assertThrows(HttpClientErrorException.BadRequest.class, () ->
+				updateTodoItem(todo, getNewPatchedPastDueTodoItem()));
 	}
 
 	@Test
 	void testGetNonExistentTodoItemChangePastDueItem() {
-		assertThrows(HttpClientErrorException.NotFound.class,
-				() -> restTemplate.getForEntity(String.format("%s/%d", getTodoEndpoint(), 10L), Object.class));
+		assertThrows(HttpClientErrorException.NotFound.class, () ->
+				restTemplate.getForEntity(String.format("%s/%d", getTodoEndpoint(), 10L), Object.class));
 	}
 
 	@Test
@@ -140,23 +140,26 @@ class TodoApiIntegrationTest {
 	void testUpdateDoneItem() {
 		TodoDTO todo = createNewTodoItem(getNewTodoItem()).getBody();
 		updateTodoItem(Objects.requireNonNull(todo), getTodoItemMarkedAsDone());
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> updateTodoItem(todo, getNewTodoItemWithPatchedDescription()));
+		assertThrows(HttpClientErrorException.BadRequest.class, () ->
+				updateTodoItem(todo, getNewTodoItemWithPatchedDescription()));
 	}
 
 	@Test
 	void testUpdatePastDueItemWithFutureDate() {
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> updateTodoItem(Objects.requireNonNull(createNewTodoItem(getNewTodoItem()).getBody()),
-				getTodoItemWithPastDueStatusAndFutureDate()));
+		assertThrows(HttpClientErrorException.BadRequest.class, () ->
+				updateTodoItem(Objects.requireNonNull(createNewTodoItem(getNewTodoItem()).getBody()), getTodoItemWithPastDueStatusAndFutureDate()));
 	}
 
 	@Test
 	void testUpdatePastDueStatusChange() {
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> updateTodoItem(Objects.requireNonNull(createNewTodoItem(getNewTodoItem()).getBody()), getPatchedPastDueTodoItem()));
+		assertThrows(HttpClientErrorException.BadRequest.class, () ->
+				updateTodoItem(Objects.requireNonNull(createNewTodoItem(getNewTodoItem()).getBody()), getPatchedPastDueTodoItem()));
 	}
 
 	@Test
 	void testChangeStatusToPastDueWithoutSettingTheDueAtDate() {
-		assertThrows(HttpClientErrorException.BadRequest.class, () -> updateTodoItem(Objects.requireNonNull(createNewTodoItem(getNewTodoItem()).getBody()), getTodoItemWithPastDueStatus()));
+		assertThrows(HttpClientErrorException.BadRequest.class, () ->
+				updateTodoItem(Objects.requireNonNull(createNewTodoItem(getNewTodoItem()).getBody()), getTodoItemWithPastDueStatus()));
 	}
 
 	private ResponseEntity<TodoDTO> createNewTodoItem(TodoDTO todoDTO) {

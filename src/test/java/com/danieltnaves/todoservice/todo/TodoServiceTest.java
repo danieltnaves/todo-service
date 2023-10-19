@@ -1,4 +1,4 @@
-package com.danieltnaves.todoservice.todo.unit;
+package com.danieltnaves.todoservice.todo;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -11,8 +11,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.danieltnaves.todoservice.todo.TodoRepository;
-import com.danieltnaves.todoservice.todo.TodoService;
 import com.danieltnaves.todoservice.todo.api.TodoDTO;
 import com.danieltnaves.todoservice.todo.domain.Todo;
 import com.danieltnaves.todoservice.todo.errors.InvalidInputException;

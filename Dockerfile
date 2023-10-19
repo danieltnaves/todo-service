@@ -1,6 +1,7 @@
 FROM gradle:8.3-jdk17 AS build
 WORKDIR /app
 COPY build.gradle settings.gradle /app/
+COPY config /app/config
 COPY src /app/src
 RUN gradle build
 
