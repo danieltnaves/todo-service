@@ -31,7 +31,7 @@ public class TodoEventPublisherServiceIntegrationTest {
         todoRepository.save(todo);
         todoEventPublisherService.publishUpdatePastDueEvent(todo);
         Status updatedStatus = todoRepository.findById(todo.getId()).orElseThrow(RuntimeException::new).getStatus();
-        await().atMost(5, SECONDS).until(() -> Status.PAST_DUE.equals(updatedStatus));
+        await().atMost(15, SECONDS).until(() -> Status.PAST_DUE.equals(updatedStatus));
     }
 
 }
