@@ -95,6 +95,16 @@ From now on the application can be used via port 8080.
 The Swagger UI is available at:
 http://localhost:8080/todo-service/swagger-ui/index.html
 
+The H2 web console is available at:
+
+http://localhost:8080/todo-service/h2-console
+
+```
+JDBC URL: jdbc:h2:mem:testdb
+User Name: sa
+Password: password
+```
+
 To use the application and start doing calls there are some handy examples on the Swagger UI, especially for the /todo/{id} PATCH endpoint.
 
 Additionally, this application can also be executed using Docker. There are two shell scripts to execute the Docker commands:
