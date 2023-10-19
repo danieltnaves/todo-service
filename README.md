@@ -49,7 +49,7 @@ The documentation for the REST endpoints is written using the OpenApi library pr
 
 ### How to build the service
 
-The project can with Java 17 and the Gradle wrapper. The following command needs to be executed:
+The project can be built with Java 17 and the Gradle wrapper. The following command needs to be executed:
 
 ```
 ./gradlew clean build
@@ -62,7 +62,7 @@ To run both integration tests and unit tests execute:
 ```
 ./gradlew clean check
 ```
-This command will execute unit tests first and the integration tests.
+This command will execute unit tests first and then integration tests.
 
 To run only unit tests:
 ```
