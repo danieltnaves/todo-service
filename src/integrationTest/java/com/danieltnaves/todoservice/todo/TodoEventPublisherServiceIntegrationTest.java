@@ -1,6 +1,5 @@
 package com.danieltnaves.todoservice.todo;
 
-import static com.danieltnaves.todoservice.todo.domain.Todo.*;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 
@@ -22,15 +21,15 @@ public class TodoEventPublisherServiceIntegrationTest {
 
     @Test
     void testPublishPastDueEvent() {
-        Todo todo = builder()
+        Todo todo = Todo.builder()
                 .description("This a past due item with the status not yet updated to past due")
-                .status(Status.NOT_DONE)
+                .status(Todo.Status.NOT_DONE)
                 .createdAt(LocalDateTime.now())
                 .dueAt(LocalDateTime.now().minusDays(1))
                 .build();
         todoRepository.save(todo);
         todoEventPublisherService.publishUpdatePastDueEvent(todo);
-        await().atMost(10, SECONDS).until(() -> Status.PAST_DUE.equals(todoRepository.findById(todo.getId()).orElseThrow(RuntimeException::new).getStatus()));
+        await().atMost(10, SECONDS).until(() -> Todo.Status.PAST_DUE.equals(todoRepository.findById(todo.getId()).orElseThrow(RuntimeException::new).getStatus()));
     }
 
 }
