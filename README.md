@@ -40,11 +40,11 @@ This project uses the following tech stack:
 
 ### Runtime environment
 
-This project uses Java 17 and Spring Boot as a runtime environment. It's possible to execute it locally using either Java or Docker. The bulding instructions are described on the **How to build and run the service**.
+This project uses Java 17 and Spring Boot as a runtime environment. It's possible to execute it locally using either Java or Docker. The bulding instructions are described on the **How to build the service** and **How to run the service locally**.
 
 ### Frameworks and libraries
 
-The main framework of this project is Spring Boot and its other frameworks like Data JPA, MVC, and AOP. The Lombok library is also used across the project. Aditionally, this project uses JUnit and the assertion library Hamcrest.
+The main framework of this project is Spring Boot and its other frameworks like Data JPA, MVC, and AOP. The Lombok library is also used across the project. Additionally, this project uses JUnit and the assertion library Hamcrest.
 The documentation for the REST endpoints is written using the OpenApi library programmatically and is available using the web browser via Swagger UI.
 
 ### How to build the service
